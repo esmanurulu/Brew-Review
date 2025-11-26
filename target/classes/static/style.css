@@ -8,7 +8,7 @@
     --text-light: #fffaf0; 
 }
 
-/* SAYFA AYARLARI */
+/* sayfa */
 html, body {
     margin: 0;
     padding: 0;
@@ -87,7 +87,7 @@ html, body {
     to { color: var(--text-light); }
 }
 
-/* EFEKTLER MERKEZİ */
+
 .full-screen-effects {
     position: absolute;
     top: 50%;
@@ -99,7 +99,7 @@ html, body {
     pointer-events: none;
 }
 
-/* DAMLA */
+/* kahve damlamasi */
 .center-drop {
     position: absolute;
     top: -300px;
@@ -120,7 +120,7 @@ html, body {
     100% { top: 85px; opacity: 0; transform: translateX(-50%) rotate(45deg) scale(0.5); }
 }
 
-/* DALGALAR */
+/* kahve dalgalanması */
 .ripple {
     position: absolute;
     top: 50%;
@@ -144,7 +144,6 @@ html, body {
     100% { width: 150vw; height: 150vw; opacity: 0; }
 }
 
-/* AYDINLANMA */
 .light-reveal {
     position: absolute;
     top: 50%;
@@ -165,7 +164,7 @@ html, body {
     100% { opacity: 1; transform: translate(-50%, -50%) scale(300); } 
 }
 
-/* LOGIN KARTI */
+/* login */
 #login-container { display: none; position: relative; z-index: 50; opacity: 0; }
 
 .login-card { 
@@ -181,12 +180,12 @@ html, body {
 
 @keyframes cardFadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-/* LOGIN KARTINDAKİ YENİ MARKA YAZISI */
+
 .login-brand {
     font-family: 'Patrick Hand', cursive;
     font-size: 3rem;
     color: var(--coffee-darker);
-    margin: 0 0 15px 0; /* Altına biraz boşluk */
+    margin: 0 0 15px 0; 
     line-height: 1;
 }
 

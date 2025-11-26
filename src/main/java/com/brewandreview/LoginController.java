@@ -20,18 +20,18 @@ public class LoginController {
     // Ana Sayfa (index.html)
     @GetMapping("/")
     public String index() {
-        return "index"; // templates/index.html dosyasını arar
+        return "index";
     }
 
     // Dashboard Sayfası
     @GetMapping("/dashboard")
     public String dashboard(@RequestParam(name = "user", required = false, defaultValue = "Misafir") String user,
             Model model) {
-        model.addAttribute("user", user); // HTML'e veri gönderir
+        model.addAttribute("user", user);
         return "dashboard";
     }
 
-    // Giriş İşlemi (JSON döner)
+    // Giriş - json
     @PostMapping("/login")
     @ResponseBody
     public Map<String, String> login(@RequestParam("username") String username,

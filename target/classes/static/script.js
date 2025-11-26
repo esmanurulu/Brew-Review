@@ -1,16 +1,16 @@
 document.addEventListener("DOMContentLoaded", function() {
     
-    // Toplam Süre: 5.3 Saniye (Bekleme Yok)
+    
     const animationDuration = 5300; 
 
     setTimeout(function() {
         const intro = document.getElementById('intro-container');
         const login = document.getElementById('login-container');
 
-        // Intro'yu gizle
+     
         intro.style.display = 'none'; 
         
-        // Login'i aç
+      
         login.style.display = 'block';
         setTimeout(() => {
             login.style.opacity = '1';
