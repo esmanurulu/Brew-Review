@@ -2,6 +2,7 @@ package com.brewandreview.model;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "Cafe")
@@ -30,7 +31,20 @@ public class Cafe {
     @Column(name = "review_count")
     private Integer reviewCount;
 
-    // Getter ve Setterlar
+    // --- YENİ EKLENEN İLİŞKİLER ---
+
+    // Bir kafenin birden çok menü öğesi olur (Cafe_Menu tablosu üzerinden)
+    @ManyToMany
+    @JoinTable(name = "Cafe_Menu", joinColumns = @JoinColumn(name = "cafe_id"), inverseJoinColumns = @JoinColumn(name = "menu_id"))
+    private List<MenuItem> menuItems;
+
+    // Bir kafenin birden çok çalışanı olur (Employee_Cafe tablosu üzerinden)
+    @ManyToMany
+    @JoinTable(name = "Employee_Cafe", joinColumns = @JoinColumn(name = "cafe_id"), inverseJoinColumns = @JoinColumn(name = "employee_id"))
+    private List<Employee> employees;
+
+    // --- Getter ve Setterlar ---
+
     public Long getCafeId() {
         return cafeId;
     }
@@ -85,5 +99,22 @@ public class Cafe {
 
     public void setReviewCount(Integer reviewCount) {
         this.reviewCount = reviewCount;
+    }
+
+    // Yeni listeler için getter/setter
+    public List<MenuItem> getMenuItems() {
+        return menuItems;
+    }
+
+    public void setMenuItems(List<MenuItem> menuItems) {
+        this.menuItems = menuItems;
+    }
+
+    public List<Employee> getEmployees() {
+        return employees;
+    }
+
+    public void setEmployees(List<Employee> employees) {
+        this.employees = employees;
     }
 }

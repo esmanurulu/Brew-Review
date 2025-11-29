@@ -50,7 +50,11 @@
             <p th:if="${cafe.hasDessert}" class="badge">🍰 Tatlı Mevcut</p>
             <p style="font-size: 0.9rem; opacity: 0.8;" th:text="${cafe.address}">Adres</p>
             <br>
-            <button style="width:100%">İncele</button>
+            
+            <a th:href="@{/cafe/{id}(id=${cafe.cafeId})}" style="text-decoration: none;">
+                <button style="width:100%; cursor: pointer;">İncele</button>
+            </a>
+            
         </div>
     </div>
 
