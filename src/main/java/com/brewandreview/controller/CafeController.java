@@ -2,7 +2,7 @@ package com.brewandreview.controller;
 
 import com.brewandreview.model.Cafe;
 import com.brewandreview.repository.CafeRepository;
-import com.brewandreview.repository.ReviewRepository; // YENİ EKLENDİ
+import com.brewandreview.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,16 +19,14 @@ public class CafeController {
     private CafeRepository cafeRepository;
 
     @Autowired
-    private ReviewRepository reviewRepository; // YENİ EKLENDİ (Yorumları çekmek için)
+    private ReviewRepository reviewRepository; // İşçi 2: Yorumları getirecek
 
-    // Kafe Listeleme Sayfası
+    // Kafe Listeleme
     @GetMapping("/cafes")
     public String listCafes(@RequestParam(required = false) String city,
             @RequestParam(required = false) boolean dessert,
             Model model) {
-
         List<Cafe> cafes;
-
         if (city != null && !city.isEmpty()) {
             cafes = cafeRepository.findByCityContainingIgnoreCase(city);
         } else if (dessert) {
@@ -36,22 +34,23 @@ public class CafeController {
         } else {
             cafes = cafeRepository.findAll();
         }
-
         model.addAttribute("cafes", cafes);
         return "cafes";
     }
 
-    // Kafe Detay Sayfası (GÜNCELLENDİ)
+    // Kafe Detay Sayfası
     @GetMapping("/cafe/{id}")
     public String getCafeDetails(@PathVariable Long id, Model model) {
-        // 1. Kafeyi Bul
+        // 1. Kafeyi bul ve kutuya koy
         Cafe cafe = cafeRepository.findById(id).orElse(null);
 
         if (cafe != null) {
             model.addAttribute("cafe", cafe);
 
-            // 2. BU KAFEYE AİT YORUMLARI BUL VE SAYFAYA GÖNDER (İsteğin burasıydı)
+            // --- EKSİK OLAN PARÇA BURASIYDI ---
+            // 2. Bu kafeye ait yorumları bul ve kutuya koy
             model.addAttribute("reviews", reviewRepository.findByCafe_CafeId(id));
+            // ----------------------------------
 
             return "cafe-detail";
         } else {
