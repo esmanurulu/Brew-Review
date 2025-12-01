@@ -7,9 +7,12 @@ import java.util.List;
 
 @Repository
 public interface VisitRepository extends JpaRepository<Visit, Long> {
-    // Bir kullanıcının ziyaret geçmişini bulmak için (İleride lazım olacak)
     List<Visit> findByUser_UserId(Long userId);
 
-    // Bir kafenin ziyaretçi sayısını bulmak için
     List<Visit> findByCafe_CafeId(Long cafeId);
+
+    // İstatistikler ve Kontrol İçin
+    long countByUser_UserId(Long userId);
+
+    boolean existsByUser_UserIdAndCafe_CafeId(Long userId, Long cafeId);
 }

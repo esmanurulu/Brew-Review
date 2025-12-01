@@ -5,39 +5,87 @@
     <title>Profilim - Brew&Review</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #3e2723; color: #fcf6f0; font-family: 'Poppins', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: #5d4037; padding: 40px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; border: 2px solid #8d6e63; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        body { background-color: #3e2723; color: #fcf6f0; font-family: 'Poppins', sans-serif; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; padding-bottom: 50px; }
+        
+        /* Üst Bilgi */
+        .profile-header {
+            background: #5d4037; padding: 30px; border-radius: 20px; text-align: center; 
+            border: 2px solid #8d6e63; margin-bottom: 30px;
+        }
         .avatar { font-size: 4rem; margin-bottom: 10px; }
-        h2 { color: #ffca28; margin: 10px 0; }
-        .info-box { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin: 20px 0; text-align: left; }
-        .label { font-size: 0.8rem; color: #d7ccc8; display: block; margin-bottom: 3px; }
-        .value { font-size: 1.1rem; font-weight: bold; }
-        .btn { display: block; width: 100%; padding: 12px 0; margin-top: 10px; background: #fcf6f0; color: #3e2723; text-decoration: none; border-radius: 30px; font-weight: bold; transition: 0.3s; }
-        .btn:hover { background: #d7ccc8; transform: translateY(-2px); }
-        .btn-outline { background: transparent; border: 2px solid #fcf6f0; color: #fcf6f0; }
-        .btn-outline:hover { background: #fcf6f0; color: #3e2723; }
+        
+        /* İstatistikler */
+        .stats-container { display: flex; gap: 15px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+        .stat-box {
+            background: rgba(255,255,255,0.1); padding: 15px 25px; border-radius: 15px; min-width: 100px;
+        }
+        .stat-number { font-size: 1.8rem; font-weight: bold; color: #ffca28; display: block; }
+        .stat-label { font-size: 0.9rem; opacity: 0.8; }
+
+        /* Bölümler */
+        h3 { border-bottom: 2px solid #8d6e63; padding-bottom: 10px; color: #ffcc80; margin-top: 40px; }
+        
+        .list-item {
+            background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; 
+            margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
+            transition: 0.3s;
+        }
+        .list-item:hover { background: rgba(255,255,255,0.1); transform: translateX(5px); }
+        
+        a { color: #ffca28; text-decoration: none; font-weight: bold; }
+        .btn-back { display: inline-block; margin-bottom: 20px; color: #fcf6f0; text-decoration: none; border: 1px solid #8d6e63; padding: 8px 20px; border-radius: 30px; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <div class="avatar">☕️</div>
-    <h2 th:text="${user.username}">Kullanıcı Adı</h2>
-    <p style="opacity: 0.7;">Kahve Sever</p>
+<div class="container">
+    <a href="/dashboard" class="btn-back">← Ana Ekrana Dön</a>
 
-    <div class="info-box">
-        <span class="label">E-POSTA</span>
-        <div class="value" th:text="${user.email}">email@ornek.com</div>
-        
-        <br>
-        
-        <span class="label">KAYIT TARİHİ</span>
-        <div class="value" th:text="${#dates.format(user.signupDate, 'dd MMMM yyyy')}">01 Ocak 2024</div>
+    <div class="profile-header">
+        <div class="avatar">☕️</div>
+        <h1 th:text="${user.username}">Kullanıcı</h1>
+        <p th:text="${user.email}" style="opacity: 0.6;">email</p>
+
+        <div class="stats-container">
+            <div class="stat-box">
+                <span class="stat-number" th:text="${visitCount}">0</span>
+                <span class="stat-label">Ziyaret</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number" th:text="${reviewCount}">0</span>
+                <span class="stat-label">Yorum</span>
+            </div>
+        </div>
     </div>
 
-    <a href="/dashboard" class="btn">← Ana Ekrana Dön</a>
-    <a href="/" class="btn btn-outline">Çıkış Yap</a>
-</div>
+    <h3>❤️ Favori Kafelerim</h3>
+    <div th:if="${#lists.isEmpty(favorites)}" style="opacity:0.5;">Henüz favorin yok.</div>
+    <div th:each="fav : ${favorites}" class="list-item">
+        <span th:text="${fav.cafe.name}">Kafe Adı</span>
+        <a th:href="@{/cafe/{id}(id=${fav.cafe.cafeId})}">Git ›</a>
+    </div>
 
+    <h3>📍 Son Ziyaretlerim</h3>
+    <div th:if="${#lists.isEmpty(visits)}" style="opacity:0.5;">Henüz ziyaret yok.</div>
+    <div th:each="visit : ${visits}" class="list-item">
+        <div>
+            <span th:text="${visit.cafe.name}" style="font-weight:bold;">Kafe</span>
+            <small style="opacity:0.6; margin-left:10px;" th:text="${visit.visitDate}">Tarih</small>
+        </div>
+        <a th:href="@{/cafe/{id}(id=${visit.cafe.cafeId})}">Git ›</a>
+    </div>
+
+    <h3>💭 Son Yorumlarım</h3>
+    <div th:if="${#lists.isEmpty(reviews)}" style="opacity:0.5;">Henüz yorum yok.</div>
+    <div th:each="review : ${reviews}" class="list-item">
+        <div>
+            <span th:text="${review.cafe.name}">Kafe</span>
+            <span style="color:#ffca28; margin-left:5px;" th:text="'★ ' + ${review.ratingOverall}">5.0</span>
+        </div>
+        <a href="/my-reviews">Yönet ›</a>
+    </div>
+
+</div>
 </body>
 </html>

@@ -1,40 +1,48 @@
 package com.brewandreview.controller;
 
-import com.brewandreview.model.User;
-import com.brewandreview.repository.ReviewRepository;
-import com.brewandreview.repository.VisitRepository;
+import com.brewandreview.model.*;
+import com.brewandreview.repository.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import java.util.List;
 
 @Controller
 public class ProfileController {
 
     @Autowired
     private ReviewRepository reviewRepository;
-
     @Autowired
     private VisitRepository visitRepository;
+    @Autowired
+    private FavoriteRepository favoriteRepository;
 
     @GetMapping("/profile")
     public String showProfile(HttpSession session, Model model) {
-        // Oturumdaki kullanıcıyı al
         User currentUser = (User) session.getAttribute("currentUser");
-        if (currentUser == null) {
+        if (currentUser == null)
             return "redirect:/";
-        }
 
-        // Kullanıcı bilgisini sayfaya gönder
         model.addAttribute("user", currentUser);
 
-        // İstatistikler (Bonus Özellik: Kaç yorum yaptı? Kaç yere gitti?)
-        // Bu metodları Repository'lere eklememiş olabiliriz, o yüzden şimdilik basit
-        // tutalım
-        // İleride: model.addAttribute("visitCount",
-        // visitRepository.countByUser(currentUser));
+        // İstatistikler
+        long visitCount = visitRepository.countByUser_UserId(currentUser.getUserId());
+        long reviewCount = reviewRepository.countByUser_UserId(currentUser.getUserId());
 
-        return "profile"; // profile.html sayfasına git
+        model.addAttribute("visitCount", visitCount);
+        model.addAttribute("reviewCount", reviewCount);
+
+        // Listeler
+        List<Visit> myVisits = visitRepository.findByUser_UserId(currentUser.getUserId());
+        List<Review> myReviews = reviewRepository.findByUser_UserId(currentUser.getUserId());
+        List<Favorite> myFavorites = favoriteRepository.findByUser_UserId(currentUser.getUserId());
+
+        model.addAttribute("visits", myVisits);
+        model.addAttribute("reviews", myReviews);
+        model.addAttribute("favorites", myFavorites);
+
+        return "profile";
     }
 }

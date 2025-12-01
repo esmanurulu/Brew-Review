@@ -7,13 +7,14 @@ import java.util.List;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
-
-    // Bir kafeye ait tüm yorumları getir (cafe_id üzerinden)
     List<Review> findByCafe_CafeId(Long cafeId);
 
-    // Bir çalışana ait yorumları getir
     List<Review> findByEmployee_EmployeeId(Long employeeId);
 
-    // Bir menü öğesine ait yorumları getir
     List<Review> findByMenuItem_MenuId(Long menuId);
+
+    List<Review> findByUser_UserId(Long userId);
+
+    // İstatistik İçin
+    long countByUser_UserId(Long userId);
 }

@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Kafe Detayı - Brew&Review</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
-    
     <style>
         /* --- GENEL AYARLAR --- */
         body { 
@@ -22,7 +21,7 @@
             padding-bottom: 100px;
         }
 
-        /* --- SOL ÜST ÇEKİRDEK (STİL EKLENDİ!) --- */
+        /* --- SOL ÜST ÇEKİRDEK (DÜZELTİLDİ: KÜÇÜK VE DÖNEN) --- */
         .profile-icon-container {
             position: fixed; 
             top: 20px;
@@ -32,13 +31,13 @@
         }
 
         .profile-icon-container img {
-            width: 60px;  /* İŞTE BU SATIR O DEV RESMİ KÜÇÜLTÜYOR */
+            width: 60px;  /* BOYUT SABİTLENDİ */
             height: 60px;
             filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.5));
         }
 
         .profile-icon-container:hover {
-            transform: scale(1.2) rotate(720deg); /* Dönme efekti */
+            transform: scale(1.2) rotate(720deg); 
             cursor: pointer;
         }
 
@@ -60,7 +59,7 @@
             border-color: #ffca28; 
         }
         
-        /* --- KAFE BAŞLIK KARTI --- */
+        /* --- KAFE BAŞLIK --- */
         .cafe-header {
             background: #5d4037; 
             padding: 40px; 
@@ -91,7 +90,21 @@
         }
         .btn-checkin:hover { transform: scale(1.05); background: #a1887f; }
 
-        /* --- LİSTELER VE KARTLAR --- */
+        .btn-fav { 
+            background: transparent; border: 2px solid #ef5350; color: #ef5350; 
+            padding: 15px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; transition: 0.3s; 
+            font-size: 1.1rem;
+        }
+        .btn-fav:hover { background: rgba(239, 83, 80, 0.1); }
+        .btn-fav.active { background: #ef5350; color: white; }
+
+        .btn-disabled { 
+            background: #5d4037; color: #9e9e9e; padding: 15px 30px; 
+            border-radius: 30px; border: 1px solid #795548; cursor: not-allowed; 
+            font-size: 1.1rem; font-weight: bold;
+        }
+
+        /* --- LİSTELER --- */
         .section-title { margin-top: 50px; border-bottom: 2px solid #8d6e63; padding-bottom: 10px; color: #ffcc80; font-size: 1.5rem; }
         
         .list-grid {
@@ -105,7 +118,6 @@
         .price { float: right; font-weight: bold; color: #ffca28; }
         .role-badge { background: #8d6e63; padding: 4px 10px; border-radius: 10px; font-size: 0.8rem; display: inline-block; margin-top: 5px; }
 
-        /* Yorum Kartları */
         .review-card {
             background: rgba(0,0,0,0.2); padding: 25px; border-radius: 15px; margin-bottom: 20px;
             border-left: 5px solid #ffca28;
@@ -141,13 +153,24 @@
         </div>
 
         <div class="action-buttons">
-            <a th:href="@{/cafe/{id}/review(id=${cafe.cafeId})}" class="btn-review">
+            
+            <form th:action="@{/cafe/{id}/favorite(id=${cafe.cafeId})}" method="post">
+                <button type="submit" class="btn-fav" th:classappend="${isFavorite} ? 'active' : ''">
+                    <span th:text="${isFavorite} ? '❤️ Favorilerimde' : '🤍 Favorile'">Favorile</span>
+                </button>
+            </form>
+
+            <a th:if="${visited}" th:href="@{/cafe/{id}/review(id=${cafe.cafeId})}" class="btn-review">
                 ✍️ Değerlendir
             </a>
+            
+            <button th:if="${!visited}" class="btn-disabled" onclick="alert('Yorum yapabilmek için önce Check-in yapmalısın! 📍')">
+                🔒 Önce Ziyaret Et
+            </button>
 
             <form th:action="@{/cafe/{id}/visit(id=${cafe.cafeId})}" method="post">
                 <button type="submit" class="btn-checkin">
-                    📍 Buradaydım (Check-in)
+                    📍 Buradaydım
                 </button>
             </form>
         </div>

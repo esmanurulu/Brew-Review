@@ -2,19 +2,16 @@ package com.brewandreview.controller;
 
 import com.brewandreview.model.*;
 import com.brewandreview.repository.*;
-
 import jakarta.servlet.http.HttpSession;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.List; // <-- İŞTE EKSİK OLAN BU SATIRDI!
+import java.util.List;
 
 @Controller
 public class ReviewController {
@@ -29,53 +26,84 @@ public class ReviewController {
     private EmployeeRepository employeeRepository;
     @Autowired
     private MenuItemRepository menuItemRepository;
+    @Autowired
+    private VisitRepository visitRepository;
 
-    // 1. Yorum Formunu Göster
     @GetMapping("/cafe/{cafeId}/review")
-    public String showReviewForm(@PathVariable Long cafeId, Model model) {
+    public String showReviewForm(@PathVariable Long cafeId, Model model, HttpSession session) {
+        User currentUser = (User) session.getAttribute("currentUser");
+        if (currentUser == null)
+            return "redirect:/";
+
+        // GÜVENLİK KONTROLÜ: Ziyaret etmiş mi?
+        boolean hasVisited = visitRepository.existsByUser_UserIdAndCafe_CafeId(currentUser.getUserId(), cafeId);
+        if (!hasVisited) {
+            return "redirect:/cafe/" + cafeId + "?error=not_visited";
+        }
+
         Cafe cafe = cafeRepository.findById(cafeId).orElse(null);
         if (cafe == null)
             return "redirect:/cafes";
 
         model.addAttribute("cafe", cafe);
-        return "review-form"; // review-form.html sayfasına git
+        return "review-form";
     }
 
-    // 2. Yorumu Kaydet (POST)
     @PostMapping("/cafe/{cafeId}/review")
     public String submitReview(@PathVariable Long cafeId,
-            @RequestParam(required = false) List<Long> consumedItems, // Çoklu seçim
+            @RequestParam(required = false) List<Long> consumedItems,
             @RequestParam Double rating,
             @RequestParam String comment,
-            HttpSession session) { // Kullanıcıyı buradan alacağız
+            HttpSession session) {
 
-        // 1. Oturumdaki kullanıcıyı al
         User currentUser = (User) session.getAttribute("currentUser");
         if (currentUser == null)
-            return "redirect:/"; // Giriş yapmamışsa at
+            return "redirect:/";
 
         Cafe cafe = cafeRepository.findById(cafeId).get();
 
         Review review = new Review();
-        review.setUser(currentUser); // Otomatik atandı!
+        review.setUser(currentUser);
         review.setCafe(cafe);
         review.setRatingOverall(BigDecimal.valueOf(rating));
         review.setComment(comment);
         review.setReviewDate(Timestamp.from(Instant.now()));
-        review.setReviewType("cafe"); // Varsayılan cafe yorumu
+        review.setReviewType("cafe");
 
-        // 2. Tüketilen Ürünleri Ekle
         if (consumedItems != null && !consumedItems.isEmpty()) {
             List<MenuItem> items = menuItemRepository.findAllById(consumedItems);
             review.setConsumedItems(items);
         }
 
         reviewRepository.save(review);
-
-        // 3. Kafenin Puanını Güncelle (Basit Ortalama)
         updateCafeRating(cafe);
 
         return "redirect:/cafe/" + cafeId;
+    }
+
+    // Yorumlarım Sayfası
+    @GetMapping("/my-reviews")
+    public String showMyReviews(HttpSession session, Model model) {
+        User currentUser = (User) session.getAttribute("currentUser");
+        if (currentUser == null)
+            return "redirect:/";
+        List<Review> myReviews = reviewRepository.findByUser_UserId(currentUser.getUserId());
+        model.addAttribute("reviews", myReviews);
+        return "my-reviews";
+    }
+
+    // Silme
+    @PostMapping("/review/delete/{id}")
+    public String deleteReview(@PathVariable Long id, HttpSession session) {
+        User currentUser = (User) session.getAttribute("currentUser");
+        if (currentUser == null)
+            return "redirect:/";
+        Review review = reviewRepository.findById(id).orElse(null);
+        if (review != null && review.getUser().getUserId().equals(currentUser.getUserId())) {
+            reviewRepository.delete(review);
+            updateCafeRating(review.getCafe());
+        }
+        return "redirect:/my-reviews";
     }
 
     private void updateCafeRating(Cafe cafe) {
@@ -86,9 +114,10 @@ public class ReviewController {
         }
         if (!reviews.isEmpty()) {
             double average = sum / reviews.size();
-            // Virgülden sonra 2 basamak
             cafe.setTotalRating(BigDecimal.valueOf(average).setScale(2, RoundingMode.HALF_UP));
-            cafeRepository.save(cafe);
+        } else {
+            cafe.setTotalRating(null);
         }
+        cafeRepository.save(cafe);
     }
 }
