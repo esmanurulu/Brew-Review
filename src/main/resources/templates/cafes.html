@@ -7,26 +7,31 @@
     <style>
         body { background-color: #3e2723; color: #fcf6f0; font-family: 'Poppins', sans-serif; padding: 0; margin: 0; overflow-x: hidden; }
         .main-container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; padding-bottom: 100px; }
+        
         .profile-icon-container { position: fixed; top: 20px; left: 20px; z-index: 1000; transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .profile-icon-container img { width: 60px; height: 60px; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.5)); }
         .profile-icon-container:hover { transform: scale(1.2) rotate(720deg); cursor: pointer; }
+        
         .header-area { text-align: center; margin-bottom: 40px; }
         .header-area h1 { font-size: 3rem; color: #ffca28; margin: 15px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
         .btn-nav { background: rgba(255, 255, 255, 0.1); color: #d7ccc8; padding: 8px 20px; border-radius: 30px; text-decoration: none; font-size: 0.9rem; border: 1px solid #8d6e63; transition: 0.3s; display: inline-block; }
         .btn-nav:hover { background: #ffca28; color: #3e2723; border-color: #ffca28; }
         
-        /* FİLTRE VE SIRALAMA ALANI */
+        /* KONTROL PANELI (Filtre & Sıralama) */
         .controls-wrapper {
             background: rgba(255,255,255,0.05); padding: 20px; border-radius: 20px; border: 1px solid #5d4037;
             margin-bottom: 40px; display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; align-items: center;
         }
-        .search-group { display: flex; gap: 10px; }
-        input { padding: 10px; border-radius: 8px; border: none; width: 200px; font-family: inherit; }
-        button { padding: 10px 20px; border-radius: 8px; border: none; background: #d7ccc8; color: #3e2723; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        button:hover { background: #ffca28; }
-        .sort-links a { color: #d7ccc8; text-decoration: none; margin: 0 10px; font-size: 0.9rem; }
-        .sort-links a:hover { color: #ffca28; text-decoration: underline; }
+        .search-group { display: flex; gap: 10px; align-items: center; }
+        input { padding: 10px; border-radius: 8px; border: none; width: 200px; font-family: inherit; font-size: 1rem; }
+        button { padding: 10px 20px; border-radius: 8px; border: none; background: #d7ccc8; color: #3e2723; cursor: pointer; font-weight: bold; transition: 0.3s; font-size: 1rem; }
+        button:hover { background: #ffca28; transform: translateY(-2px); }
+        
+        .sort-links { display: flex; align-items: center; gap: 10px; color: #d7ccc8; }
+        .sort-links a { color: #ffca28; text-decoration: none; font-weight: bold; border-bottom: 1px dashed transparent; transition: 0.3s; }
+        .sort-links a:hover { border-bottom: 1px dashed #ffca28; }
 
+        /* KARTLAR */
         .cafe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 40px; row-gap: 50px; }
         .cafe-card { background: #5d4037; border: 2px solid #8d6e63; border-radius: 25px; padding: 30px; transition: transform 0.3s, box-shadow 0.3s; display: flex; flex-direction: column; justify-content: space-between; min-height: 350px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
         .cafe-card:hover { transform: translateY(-10px); background: #6d4c41; box-shadow: 0 20px 40px rgba(0,0,0,0.4); border-color: #ffca28; }
@@ -57,24 +62,26 @@
                 <datalist id="citySuggestions">
                     <option th:each="city : ${cityList}" th:value="${city}"></option>
                 </datalist>
-                <button type="submit">📍</button>
+                <button type="submit">📍 Ara</button>
             </form>
 
             <form action="/cafes" method="get" class="search-group">
                 <input type="text" name="name" placeholder="Kafe Adı Ara...">
-                <button type="submit">🔍</button>
+                <button type="submit">🔍 Ara</button>
             </form>
 
             <form action="/cafes" method="get" style="margin:0;">
                 <input type="hidden" name="dessert" value="true">
-                <button type="submit">🍰 Tatlısı Olanlar</button>
+                <button type="submit" style="background:#8d6e63; color:white;">🍰 Tatlısı Olanlar</button>
             </form>
+            
+            <a href="/cafes"><button style="background:transparent; border:1px solid #d7ccc8; color:#d7ccc8;">Sıfırla</button></a>
 
             <div class="sort-links">
-                <span>Sırala:</span>
-                <a href="/cafes?sort=az">A-Z</a> |
-                <a href="/cafes?sort=rating">Puan (En Yüksek)</a> |
-                <a href="/cafes">Varsayılan</a>
+                <span style="opacity:0.7;">Sırala:</span>
+                <a href="/cafes?sort=az">A-Z</a>
+                <span style="opacity:0.3;">|</span>
+                <a href="/cafes?sort=rating">Puan (En Yüksek)</a>
             </div>
         </div>
 

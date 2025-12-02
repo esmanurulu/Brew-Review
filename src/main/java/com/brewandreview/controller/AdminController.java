@@ -2,16 +2,18 @@ package com.brewandreview.controller;
 
 import com.brewandreview.model.Cafe;
 import com.brewandreview.model.Employee;
-import com.brewandreview.repository.CafeRepository;
-import com.brewandreview.repository.EmployeeRepository;
-import com.brewandreview.repository.MenuItemRepository;
+import com.brewandreview.model.User;
+import com.brewandreview.repository.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.math.BigDecimal;
 
 @Controller
 public class AdminController {
@@ -22,28 +24,75 @@ public class AdminController {
     private EmployeeRepository employeeRepository;
     @Autowired
     private MenuItemRepository menuItemRepository;
-
-    // --- DASHBOARD ---
     @Autowired
-    private com.brewandreview.repository.ReviewRepository reviewRepository; // Bunu en üste ekle
+    private ReviewRepository reviewRepository;
+    @Autowired
+    private VisitRepository visitRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-    // YÖNETİCİ PANELİ
+    // YARDIMCI METOD: Gün İsimlerini Türkçeye Çevir
+    private String translateDay(String day) {
+        if (day == null)
+            return "";
+        switch (day) {
+            case "Monday":
+                return "Pazartesi";
+            case "Tuesday":
+                return "Salı";
+            case "Wednesday":
+                return "Çarşamba";
+            case "Thursday":
+                return "Perşembe";
+            case "Friday":
+                return "Cuma";
+            case "Saturday":
+                return "Cumartesi";
+            case "Sunday":
+                return "Pazar";
+            default:
+                return day;
+        }
+    }
+
+    // --- 1. YÖNETİCİ PANELİ (DASHBOARD) ---
     @GetMapping("/admin/dashboard")
     public String adminDashboard(HttpSession session, Model model) {
         Employee manager = (Employee) session.getAttribute("currentManager");
         if (manager == null)
             return "redirect:/";
 
-        // Yönettiği kafeyi taze çek
+        // Yönettiği kafeyi veritabanından taze çek
         Employee dbManager = employeeRepository.findById(manager.getEmployeeId()).orElse(null);
 
         if (dbManager != null && dbManager.getManagedCafe() != null) {
             Cafe cafe = dbManager.getManagedCafe();
 
+            // A) Yorum Sayısını Güncelle
             long gercekYorumSayisi = reviewRepository.findByCafe_CafeId(cafe.getCafeId()).size();
             cafe.setReviewCount((int) gercekYorumSayisi);
-            // (Sadece ekranda göstermek için set ettik, veritabanına kaydetmeye gerek yok)
-            // -----------------------------------------------------------------------
+
+            // B) Popüler Ürünler Analizi
+            List<Object[]> topProducts = cafeRepository.findTopProductsByCafeId(cafe.getCafeId());
+            List<String> popularItems = new ArrayList<>();
+            for (Object[] row : topProducts) {
+                String name = (String) row[0];
+                Long count = ((Number) row[1]).longValue();
+                popularItems.add(name + " (" + count + " kez)");
+            }
+            model.addAttribute("popularItems", popularItems);
+
+            // C) En Yoğun Zaman Analizi (Türkçe Gün ile)
+            List<Object[]> busyDay = visitRepository.findBusiestDay(cafe.getCafeId());
+            List<Object[]> busyHour = visitRepository.findBusiestHour(cafe.getCafeId());
+
+            String busiestTime = "Veri Yok";
+            if (!busyDay.isEmpty() && !busyHour.isEmpty()) {
+                String day = (String) busyDay.get(0)[0];
+                Integer hour = (Integer) busyHour.get(0)[0];
+                busiestTime = translateDay(day) + " günü, saat " + hour + ":00 civarı";
+            }
+            model.addAttribute("busiestTime", busiestTime);
 
             model.addAttribute("cafe", cafe);
             return "admin-dashboard";
@@ -53,7 +102,7 @@ public class AdminController {
         }
     }
 
-    // --- KAFE EKLEME ---
+    // --- 2. YENİ KAFE EKLEME ---
     @GetMapping("/admin/add-cafe")
     public String showAddCafeForm() {
         return "add-cafe";
@@ -64,7 +113,7 @@ public class AdminController {
             @RequestParam String city,
             @RequestParam String address,
             @RequestParam String licenseNumber,
-            @RequestParam String phoneNumberRaw, // HTML'den gelen ham numara (5XX...)
+            @RequestParam String phoneNumberRaw, // HTML'den gelen ham numara
             @RequestParam String openingHours,
             @RequestParam(defaultValue = "false") boolean hasDessert,
             HttpSession session, Model model) {
@@ -73,16 +122,14 @@ public class AdminController {
         if (manager == null)
             return "redirect:/";
 
-        // 1. RUHSAT KONTROLÜ
+        // Ruhsat Kontrolü
         if (cafeRepository.findByLicenseNumber(licenseNumber) != null) {
             model.addAttribute("error", "Bu Ruhsat Numarası zaten kullanılıyor!");
             return "add-cafe";
         }
 
-        // 2. TELEFON FORMATLAMA (Kafeler İçin)
-        // Boşlukları temizle
+        // Telefon Formatlama (+90 Ekleme)
         String cleanNumber = phoneNumberRaw.replaceAll("\\s+", "");
-        // 10 hane kontrolü (Başında 0 olmadan)
         if (cleanNumber.length() != 10 || !cleanNumber.matches("\\d+")) {
             model.addAttribute("error",
                     "Lütfen telefon numarasını başında 0 olmadan, 10 hane olarak girin (Örn: 5321234567)");
@@ -97,7 +144,7 @@ public class AdminController {
         newCafe.setCity(city);
         newCafe.setAddress(address);
         newCafe.setLicenseNumber(licenseNumber);
-        newCafe.setPhoneNumber(formattedPhone); // Formatlı no
+        newCafe.setPhoneNumber(formattedPhone);
         newCafe.setOpeningHours(openingHours);
         newCafe.setHasDessert(hasDessert);
         newCafe.setTotalRating(null);
@@ -111,7 +158,7 @@ public class AdminController {
         return "redirect:/admin/dashboard";
     }
 
-    // --- KAFE DÜZENLEME ---
+    // --- 3. KAFE BİLGİLERİNİ DÜZENLEME ---
     @GetMapping("/admin/edit-cafe")
     public String showEditCafeForm(HttpSession session, Model model) {
         Employee manager = (Employee) session.getAttribute("currentManager");
@@ -142,6 +189,7 @@ public class AdminController {
             return "redirect:/";
 
         Employee dbManager = employeeRepository.findById(manager.getEmployeeId()).get();
+        // Güvenlik: Sadece kendi kafesini düzenleyebilir
         if (dbManager.getManagedCafe().getCafeId().equals(cafeId)) {
 
             Cafe cafe = cafeRepository.findById(cafeId).get();
@@ -158,7 +206,8 @@ public class AdminController {
         return "redirect:/admin/dashboard";
     }
 
-    // --- MENÜ EKLEME ---
+    // --- 4. MENÜ YÖNETİMİ (EKLEME & SİLME) ---
+
     @GetMapping("/admin/add-menu")
     public String showAddMenuForm(HttpSession session) {
         if (session.getAttribute("currentManager") == null)
@@ -168,7 +217,7 @@ public class AdminController {
 
     @PostMapping("/admin/add-menu")
     public String addMenuItem(@RequestParam String name,
-            @RequestParam java.math.BigDecimal price,
+            @RequestParam BigDecimal price,
             @RequestParam String description,
             @RequestParam String category,
             HttpSession session) {
@@ -192,7 +241,27 @@ public class AdminController {
         return "redirect:/admin/dashboard";
     }
 
-    // --- PERSONEL EKLEME (GÜNCELLENDİ: SADECE DENEYİM KONTROLÜ) ---
+    @PostMapping("/admin/delete-menu")
+    public String deleteMenuItem(@RequestParam Long menuId, HttpSession session) {
+        Employee manager = (Employee) session.getAttribute("currentManager");
+        if (manager == null)
+            return "redirect:/";
+
+        Employee dbManager = employeeRepository.findById(manager.getEmployeeId()).get();
+        Cafe cafe = dbManager.getManagedCafe();
+
+        com.brewandreview.model.MenuItem itemToRemove = menuItemRepository.findById(menuId).orElse(null);
+
+        if (itemToRemove != null && cafe.getMenuItems().contains(itemToRemove)) {
+            cafe.getMenuItems().remove(itemToRemove);
+            cafeRepository.save(cafe);
+            menuItemRepository.delete(itemToRemove);
+        }
+        return "redirect:/admin/dashboard";
+    }
+
+    // --- 5. PERSONEL YÖNETİMİ (EKLEME & SİLME) ---
+
     @GetMapping("/admin/add-staff")
     public String showAddStaffForm(HttpSession session) {
         if (session.getAttribute("currentManager") == null)
@@ -205,13 +274,13 @@ public class AdminController {
             @RequestParam Integer experience,
             @RequestParam String role,
             HttpSession session,
-            Model model) { // Model eklendi
+            Model model) {
 
         Employee manager = (Employee) session.getAttribute("currentManager");
         if (manager == null)
             return "redirect:/";
 
-        // DENEYİM KONTROLÜ
+        // Deneyim Yılı Kontrolü (Negatif Olamaz)
         if (experience < 0) {
             model.addAttribute("error", "Deneyim yılı negatif olamaz!");
             return "add-staff";
@@ -220,44 +289,41 @@ public class AdminController {
         Employee dbManager = employeeRepository.findById(manager.getEmployeeId()).get();
         Cafe cafe = dbManager.getManagedCafe();
 
+        // 1. Employee Oluştur
         Employee newStaff = new Employee();
         newStaff.setName(name);
         newStaff.setExperienceYears(experience);
         newStaff.setRole(role);
 
-        employeeRepository.save(newStaff);
+        // Önce kaydedelim ki ID'si oluşsun
+        newStaff = employeeRepository.save(newStaff);
+
+        // 2. Eğer Baristaysa ona USER hesabı da aç (Otomatik)
+        if ("barista".equals(role)) {
+            // Kullanıcı adı üret: ahmet_105
+            String generatedUsername = name.toLowerCase().replaceAll("\\s+", "") + "_" + newStaff.getEmployeeId();
+            newStaff.setUsername(generatedUsername);
+            newStaff.setPasswordHash("1234"); // Varsayılan şifre
+
+            // User Tablosuna Ekle
+            User newUser = new User();
+            newUser.setUsername(generatedUsername);
+            newUser.setEmail("barista" + newStaff.getEmployeeId() + "@brewreview.com");
+            newUser.setPasswordHash("1234");
+            newUser.setUserTitle("Barista ☕️");
+            newUser.setSignupDate(Timestamp.from(Instant.now()));
+            userRepository.save(newUser);
+
+            // Employee'yi güncelle
+            employeeRepository.save(newStaff);
+        }
+
         cafe.getEmployees().add(newStaff);
         cafeRepository.save(cafe);
 
         return "redirect:/admin/dashboard";
     }
 
-    @PostMapping("/admin/delete-menu")
-    public String deleteMenuItem(@RequestParam Long menuId, HttpSession session) {
-        Employee manager = (Employee) session.getAttribute("currentManager");
-        if (manager == null)
-            return "redirect:/";
-
-        // Güvenlik: Silinecek ürün gerçekten bu yöneticinin kafesine mi ait?
-        Employee dbManager = employeeRepository.findById(manager.getEmployeeId()).get();
-        Cafe cafe = dbManager.getManagedCafe();
-
-        // Ürünü bul
-        com.brewandreview.model.MenuItem itemToRemove = menuItemRepository.findById(menuId).orElse(null);
-
-        if (itemToRemove != null && cafe.getMenuItems().contains(itemToRemove)) {
-            // İlişkiyi kes
-            cafe.getMenuItems().remove(itemToRemove);
-            cafeRepository.save(cafe);
-
-            // Ürünü tamamen sil
-            menuItemRepository.delete(itemToRemove);
-        }
-
-        return "redirect:/admin/dashboard";
-    }
-
-    // 2. Personel Sil (İşten Çıkar)
     @PostMapping("/admin/delete-staff")
     public String deleteStaff(@RequestParam Long staffId, HttpSession session) {
         Employee manager = (Employee) session.getAttribute("currentManager");
@@ -270,14 +336,14 @@ public class AdminController {
         Employee staffToRemove = employeeRepository.findById(staffId).orElse(null);
 
         if (staffToRemove != null && cafe.getEmployees().contains(staffToRemove)) {
-            // İlişkiyi kes
             cafe.getEmployees().remove(staffToRemove);
             cafeRepository.save(cafe);
 
-            // Personeli sil
+            // User kaydı varsa onu da silebiliriz ama veri kaybı olmasın diye sadece
+            // ilişkileri kesiyoruz
+            // Gerçek bir uygulamada User tablosundan da silmek gerekebilir.
             employeeRepository.delete(staffToRemove);
         }
-
         return "redirect:/admin/dashboard";
     }
 }

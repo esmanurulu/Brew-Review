@@ -2,11 +2,7 @@ package com.brewandreview.controller;
 
 import com.brewandreview.model.Cafe;
 import com.brewandreview.model.User;
-import com.brewandreview.repository.CafeRepository;
-import com.brewandreview.repository.FavoriteRepository;
-import com.brewandreview.repository.ReviewRepository;
-import com.brewandreview.repository.VisitRepository;
-import com.brewandreview.repository.FollowRepository;
+import com.brewandreview.repository.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -32,6 +28,32 @@ public class CafeController {
     private FavoriteRepository favoriteRepository;
     @Autowired
     private FollowRepository followRepository;
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    // YARDIMCI METOD: Gün İsimlerini Türkçeye Çevir
+    private String translateDay(String day) {
+        if (day == null)
+            return "";
+        switch (day) {
+            case "Monday":
+                return "Pazartesi";
+            case "Tuesday":
+                return "Salı";
+            case "Wednesday":
+                return "Çarşamba";
+            case "Thursday":
+                return "Perşembe";
+            case "Friday":
+                return "Cuma";
+            case "Saturday":
+                return "Cumartesi";
+            case "Sunday":
+                return "Pazar";
+            default:
+                return day;
+        }
+    }
 
     @GetMapping("/cafes")
     public String listCafes(@RequestParam(required = false) String city,
@@ -40,7 +62,6 @@ public class CafeController {
             @RequestParam(required = false, defaultValue = "default") String sort,
             Model model) {
 
-        // 1. Sıralama Kuralını Belirle
         Sort sortingRule = Sort.unsorted();
         if ("az".equals(sort)) {
             sortingRule = Sort.by(Sort.Direction.ASC, "name");
@@ -49,8 +70,6 @@ public class CafeController {
         }
 
         List<Cafe> cafes;
-
-        // 2. Sorguları 'sortingRule' ile Yap (Kırmızı Yanan Yerler Düzeldi)
         if (name != null && !name.isEmpty()) {
             cafes = cafeRepository.findByNameContainingIgnoreCase(name, sortingRule);
         } else if (city != null && !city.isEmpty()) {
@@ -75,6 +94,19 @@ public class CafeController {
             model.addAttribute("cafe", cafe);
             model.addAttribute("reviews", reviewRepository.findByCafe_CafeId(id));
 
+            // --- YOĞUNLUK İSTATİSTİĞİ (TÜRKÇE GÜN İLE) ---
+            List<Object[]> busyDay = visitRepository.findBusiestDay(id);
+            List<Object[]> busyHour = visitRepository.findBusiestHour(id);
+
+            String busiestTime = "Henüz yeterli veri yok";
+            if (!busyDay.isEmpty() && !busyHour.isEmpty()) {
+                String day = (String) busyDay.get(0)[0];
+                Integer hour = (Integer) busyHour.get(0)[0];
+                busiestTime = translateDay(day) + " günü, saat " + hour + ":00 civarı";
+            }
+            model.addAttribute("busiestTime", busiestTime);
+            // ---------------------------------------------
+
             User currentUser = (User) session.getAttribute("currentUser");
             if (currentUser != null) {
                 boolean visited = visitRepository.existsByUser_UserIdAndCafe_CafeId(currentUser.getUserId(), id);
@@ -83,7 +115,6 @@ public class CafeController {
                 model.addAttribute("visited", visited);
                 model.addAttribute("isFavorite", isFavorite);
 
-                // Takip edilenleri bul (Buton rengi için)
                 var follows = followRepository.findByUser_UserId(currentUser.getUserId());
                 List<Long> followedEmployeeIds = follows.stream()
                         .filter(f -> f.getEmployee() != null)
