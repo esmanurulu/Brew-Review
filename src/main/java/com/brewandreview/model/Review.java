@@ -26,7 +26,6 @@ public class Review {
     @Column(name = "review_date")
     private Timestamp reviewDate;
 
-    // --- YENİ EKLENEN: FAYDALI SAYISI ---
     @Column(name = "helpful_count")
     private Integer helpfulCount;
 
@@ -50,8 +49,6 @@ public class Review {
     @ManyToMany
     @JoinTable(name = "Review_Consumed_Items", joinColumns = @JoinColumn(name = "review_id"), inverseJoinColumns = @JoinColumn(name = "menu_id"))
     private List<MenuItem> consumedItems;
-
-    // --- Getter ve Setterlar ---
 
     public Long getReviewId() {
         return reviewId;
@@ -93,7 +90,6 @@ public class Review {
         this.reviewDate = reviewDate;
     }
 
-    // YENİ GETTER VE SETTER
     public Integer getHelpfulCount() {
         return helpfulCount;
     }
@@ -141,4 +137,5 @@ public class Review {
     public void setConsumedItems(List<MenuItem> consumedItems) {
         this.consumedItems = consumedItems;
     }
+
 }

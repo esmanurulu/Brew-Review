@@ -10,29 +10,25 @@ import java.util.List;
 @Repository
 public interface VisitRepository extends JpaRepository<Visit, Long> {
 
-    // 1. Kullanıcının Ziyaret Geçmişi
+    // kullanıcının ziyaret geçmişi
     List<Visit> findByUser_UserId(Long userId);
 
-    // 2. Bir Kafenin Ziyaretçileri
+    // bir kafenin ziyaretçileri
     List<Visit> findByCafe_CafeId(Long cafeId);
 
-    // 3. İstatistikler ve Kontrol İçin
+    // istatistikler ve kntrol
     long countByUser_UserId(Long userId);
 
-    // Kullanıcının kafeye gidip gitmediğini kontrol et (Yorum yapabilmek için)
+    // kullanıcının kafeye gidip gitmediğinin kontrolunu yapıyoruz (degerlendirme yapabilme sartı)
     boolean existsByUser_UserIdAndCafe_CafeId(Long userId, Long cafeId);
 
-    // --- YENİ EKLENEN: YOĞUNLUK İSTATİSTİKLERİ ---
-
-    // 4. En Yoğun Günü Bul (Pazartesi, Salı vb.)
-    // (Hangi gün kaç ziyaret var sayar, en yükseği getirir)
+    // en yogun gun
     @Query(value = "SELECT DAYNAME(visit_date) as day, COUNT(*) as count " +
             "FROM Visit WHERE cafe_id = :cafeId " +
             "GROUP BY day ORDER BY count DESC LIMIT 1", nativeQuery = true)
     List<Object[]> findBusiestDay(@Param("cafeId") Long cafeId);
 
-    // 5. En Yoğun Saati Bul (14:00, 18:00 vb.)
-    // (Hangi saat aralığında kaç ziyaret var sayar, en yükseği getirir)
+    // en yogun saat
     @Query(value = "SELECT HOUR(visit_time) as hour, COUNT(*) as count " +
             "FROM Visit WHERE cafe_id = :cafeId " +
             "GROUP BY hour ORDER BY count DESC LIMIT 1", nativeQuery = true)

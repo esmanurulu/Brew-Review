@@ -5,40 +5,81 @@
     <title>Yorum Yap - Brew&Review</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
-        /* ... (CSS Aynı Kalacak, sadece container stili aynı kalsın) ... */
-        body { background-color: #3e2723; color: #fcf6f0; font-family: 'Poppins', sans-serif; padding: 20px; display: flex; justify-content: center; min-height: 100vh; box-sizing: border-box;}
+        body { background-color: #3e2723; color: #fcf6f0; font-family: 'Poppins', sans-serif; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
         .container { background: #5d4037; padding: 40px; border-radius: 20px; width: 100%; max-width: 600px; border: 2px solid #8d6e63; box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin-top: 40px; }
-        /* ... */
+        h2 { text-align: center; color: #ffca28; margin-top: 0; }
+        label { display: block; margin-top: 20px; font-weight: bold; font-size: 1.1rem; }
+        
+        /* Profil İkonu */
+        .profile-icon-container { position: fixed; top: 20px; left: 20px; z-index: 1000; transition: transform 0.8s; }
+        .profile-icon-container img { width: 60px; height: 60px; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.5)); }
+        
+        .btn-back { display: inline-block; margin-bottom: 20px; color: #d7ccc8; text-decoration: none; font-size: 0.9rem; border: 1px solid #8d6e63; padding: 5px 15px; border-radius: 20px; }
+        
+        /* Form Elemanları */
+        select, input, textarea { width: 100%; padding: 12px; margin-top: 5px; border-radius: 10px; border: none; font-family: inherit; box-sizing: border-box; }
+        
+        .rating-box { text-align: center; margin: 10px 0; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 10px; }
+        .rating-box input { width: 80px; text-align: center; font-size: 1.5rem; font-weight: bold; color: #3e2723; }
+
+        .checkbox-container { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; max-height: 150px; overflow-y: auto; margin-top: 5px; }
+        .checkbox-item { display: flex; align-items: center; margin-bottom: 5px; }
+        .checkbox-item input { width: auto; margin-right: 10px; transform: scale(1.3); }
+
+        button { background: #ffca28; color: #3e2723; font-weight: bold; margin-top: 30px; cursor: pointer; font-size: 1.2rem; width: 100%; padding: 15px; border: none; border-radius: 10px; transition: 0.3s; }
+        button:hover { background: #ffb300; transform: translateY(-2px); }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>✍️ Deneyimini Paylaş</h2>
-        <p style="text-align:center;">(<span th:text="${cafe.name}">Kafe Adı</span>)</p>
 
-        <form th:action="@{/cafe/{id}/review(id=${cafe.cafeId})}" method="post">
-            
-            <label style="display:block; margin-top:20px; font-weight:bold;">Kimi / Neyi Değerlendireceksin?</label>
-            <select name="targetId" id="targetSelect" onchange="updateType()" style="width:100%; padding:10px; border-radius:8px; border:none; font-family:inherit; background:rgba(255,255,255,0.9); margin-top:5px;">
-                <option value="" data-type="cafe">🏠 Kafe (Genel)</option>
-                <optgroup label="👨‍🍳 Baristalar">
-                    <option th:each="emp : ${cafe.employees}" th:value="${emp.employeeId}" data-type="employee" th:text="${emp.name}"></option>
-                </optgroup>
-            </select>
-            <input type="hidden" name="targetType" id="targetType" value="cafe">
+<a href="/profile" class="profile-icon-container"><img th:src="@{/images/bean.png}"></a>
 
-            <label style="margin-top:20px; display:block; font-weight:bold;">Puanın (1.0 - 5.0):</label>
-             <button type="submit" style="width:100%; padding:15px; background:#ffca28; border:none; border-radius:10px; font-weight:bold; cursor:pointer; margin-top:30px;">Yorumu Gönder 🚀</button>
-        </form>
-    </div>
+<div class="container">
+    <a th:href="@{/cafe/{id}(id=${cafe.cafeId})}" class="btn-back">← Kafeye Dön</a>
 
-    <script>
-        function updateType() {
-            const select = document.getElementById("targetSelect");
-            const selectedOption = select.options[select.selectedIndex];
-            const type = selectedOption.getAttribute("data-type");
-            document.getElementById("targetType").value = type;
-        }
-    </script>
+    <h2>✍️ Deneyimini Paylaş</h2>
+    <p style="text-align:center; opacity: 0.8;">(<span th:text="${cafe.name}">Kafe Adı</span>)</p>
+
+    <form th:action="@{/cafe/{id}/review(id=${cafe.cafeId})}" method="post">
+        
+        <label>Kimi / Neyi Değerlendireceksin?</label>
+        <select name="targetId" id="targetSelect" onchange="updateType()">
+            <option value="" data-type="cafe">🏠 Kafe (Genel)</option>
+            <optgroup label="👨‍🍳 Baristalar">
+                <option th:each="emp : ${cafe.employees}" th:value="${emp.employeeId}" data-type="employee" th:text="${emp.name}"></option>
+            </optgroup>
+        </select>
+        <input type="hidden" name="targetType" id="targetType" value="cafe">
+
+        <label>Puanın (1.0 - 5.0):</label>
+        <div class="rating-box">
+            <input type="number" name="rating" step="0.1" min="1" max="5" value="5.0" required>
+        </div>
+
+        <label>Neleri Denedin?</label>
+        <div th:if="${#lists.isEmpty(cafe.menuItems)}" style="opacity:0.6; font-style:italic;">Bu kafede menü tanımlı değil.</div>
+        <div class="checkbox-container" th:if="${not #lists.isEmpty(cafe.menuItems)}">
+            <div class="checkbox-item" th:each="item : ${cafe.menuItems}">
+                <input type="checkbox" name="consumedItems" th:value="${item.menuId}">
+                <span th:text="${item.name}">Ürün</span>
+            </div>
+        </div>
+
+        <label>Yorumun:</label>
+        <textarea name="comment" rows="4" placeholder="Deneyiminden bahset..." required></textarea>
+
+        <button type="submit">Yorumu Gönder 🚀</button>
+    </form>
+</div>
+
+<script>
+    function updateType() {
+        const select = document.getElementById("targetSelect");
+        const selectedOption = select.options[select.selectedIndex];
+        const type = selectedOption.getAttribute("data-type");
+        document.getElementById("targetType").value = type;
+    }
+</script>
+
 </body>
 </html>

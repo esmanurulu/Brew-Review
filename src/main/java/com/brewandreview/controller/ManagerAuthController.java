@@ -24,22 +24,22 @@ public class ManagerAuthController {
     public String registerManager(@RequestParam String name,
             @RequestParam String username,
             @RequestParam String password,
-            @RequestParam String citizenId, // TC Kimlik
+            @RequestParam String citizenId,
             Model model) {
 
-        // 1. TC Kimlik Kontrolü (11 Haneli mi?)
+        //11 Haneli mi?
         if (citizenId.length() != 11 || !citizenId.matches("\\d+")) {
             model.addAttribute("error", "TC Kimlik / Sicil No 11 haneli olmalıdır!");
             return "manager-register";
         }
 
-        // 2. Kullanıcı Adı Kontrolü
+        //Kullanıcı Adı Kontrolü
         if (employeeRepository.findByUsername(username) != null) {
             model.addAttribute("error", "Bu kullanıcı adı zaten kullanımda.");
             return "manager-register";
         }
 
-        // 3. Yeni Yönetici Oluştur
+        //Yeni Yönetici Oluştur
         Employee newManager = new Employee();
         newManager.setName(name);
         newManager.setUsername(username);

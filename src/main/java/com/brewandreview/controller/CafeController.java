@@ -31,7 +31,6 @@ public class CafeController {
     @Autowired
     private EmployeeRepository employeeRepository;
 
-    // YARDIMCI METOD: Gün İsimlerini Türkçeye Çevir
     private String translateDay(String day) {
         if (day == null)
             return "";
@@ -94,7 +93,7 @@ public class CafeController {
             model.addAttribute("cafe", cafe);
             model.addAttribute("reviews", reviewRepository.findByCafe_CafeId(id));
 
-            // --- YOĞUNLUK İSTATİSTİĞİ (TÜRKÇE GÜN İLE) ---
+            // YOĞUNLUK İSTATİSTİĞİ
             List<Object[]> busyDay = visitRepository.findBusiestDay(id);
             List<Object[]> busyHour = visitRepository.findBusiestHour(id);
 
@@ -105,7 +104,7 @@ public class CafeController {
                 busiestTime = translateDay(day) + " günü, saat " + hour + ":00 civarı";
             }
             model.addAttribute("busiestTime", busiestTime);
-            // ---------------------------------------------
+           
 
             User currentUser = (User) session.getAttribute("currentUser");
             if (currentUser != null) {

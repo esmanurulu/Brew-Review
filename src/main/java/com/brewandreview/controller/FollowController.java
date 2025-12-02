@@ -30,19 +30,17 @@ public class FollowController {
         Employee employee = employeeRepository.findById(id).orElse(null);
         if (employee != null) {
             if (followRepository.existsByUserAndEmployee(currentUser, employee)) {
-                // Zaten takip ediyorsa çıkar
                 followRepository.deleteByUserAndEmployee(currentUser, employee);
             } else {
-                // Takip etmiyorsa ekle
                 Follow follow = new Follow();
                 follow.setUser(currentUser);
                 follow.setEmployee(employee);
                 follow.setFollowDate(Timestamp.from(Instant.now()));
                 followRepository.save(follow);
             }
-            // İşlem bitince kafenin detay sayfasına geri dön (Baristanın çalıştığı kafe)
-            // Not: Baristanın kafesi yoksa ana sayfaya dön
-            if (employee.getManagedCafe() != null) { // Manager ise
+            //İşlem bitince kafenin detay sayfasına geri dön (Baristanın çalıştığı kafe)
+            //Baristanın kafesi yoksa ana sayfaya dön
+            if (employee.getManagedCafe() != null) { 
                 return "redirect:/cafe/" + employee.getManagedCafe().getCafeId();
             } else {
                 // Normal baristaların kafe ilişkisini Employee_Cafe tablosundan bulmak
