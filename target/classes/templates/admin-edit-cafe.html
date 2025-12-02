@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kafeyi Düzenle - Brew&Review</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #3e2723; color: #fcf6f0; font-family: 'Poppins', sans-serif;
+            display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px;
+        }
+        .container {
+            background: #5d4037; padding: 40px; border-radius: 20px; width: 100%; max-width: 500px;
+            border: 2px solid #8d6e63; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 { text-align: center; color: #ffca28; margin-top: 0; }
+        
+        label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.9rem; color: #ffcc80; }
+        input[type="text"] { 
+            width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; border: none; 
+            box-sizing: border-box; font-family: inherit; background: rgba(255,255,255,0.9);
+        }
+        
+        .checkbox-group { display: flex; align-items: center; margin-top: 20px; gap: 10px; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 10px; }
+        input[type="checkbox"] { transform: scale(1.5); cursor: pointer; }
+
+        button {
+            width: 100%; padding: 15px; background: #ffca28; color: #3e2723; 
+            border: none; border-radius: 10px; margin-top: 30px; 
+            font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: 0.3s;
+        }
+        button:hover { background: #ffb300; transform: translateY(-2px); }
+
+        .btn-back { display: block; text-align: center; margin-top: 15px; color: #d7ccc8; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>✏️ Bilgileri Düzenle</h1>
+
+        <form action="/admin/edit-cafe" method="post">
+            <input type="hidden" name="cafeId" th:value="${cafe.cafeId}">
+
+            <label>Kafe Adı</label>
+            <input type="text" name="name" th:value="${cafe.name}" required>
+
+            <label>Şehir</label>
+            <input type="text" name="city" th:value="${cafe.city}" required>
+
+            <label>Adres</label>
+            <input type="text" name="address" th:value="${cafe.address}" required>
+            
+            <label>Telefon Numarası</label>
+            <input type="text" name="phoneNumber" th:value="${cafe.phoneNumber}" required>
+
+            <label>Çalışma Saatleri (Örn: 09:00-23:00)</label>
+            <input type="text" name="openingHours" th:value="${cafe.openingHours}" pattern="\d{2}:\d{2}-\d{2}:\d{2}" title="SS:DD-SS:DD formatında" required>
+
+            <label>İşyeri Ruhsat No</label>
+            <input type="text" name="licenseNumber" th:value="${cafe.licenseNumber}" required style="background: #d7ccc8; font-weight: bold;" readonly title="Ruhsat no değiştirilemez">
+
+            <div class="checkbox-group">
+                <input type="checkbox" name="hasDessert" id="dessert" th:checked="${cafe.hasDessert}">
+                <label for="dessert" style="margin:0; cursor:pointer; color: white;">🍰 Bu kafede tatlı satılıyor mu?</label>
+            </div>
+
+            <button type="submit">Değişiklikleri Kaydet 💾</button>
+        </form>
+
+        <a href="/admin/dashboard" class="btn-back">İptal ve Geri Dön</a>
+    </div>
+
+</body>
+</html>

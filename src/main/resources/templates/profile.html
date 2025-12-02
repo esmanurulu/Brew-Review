@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Profilim - Brew&Review</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* ... (Mevcut CSS'leri koruyabilirsin, aynı) ... */
+        body { background-color: #3e2723; color: #fcf6f0; font-family: 'Poppins', sans-serif; padding: 0; margin: 0; overflow-x: hidden; }
+        .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; padding-bottom: 100px; }
+        .profile-header { background: #5d4037; padding: 30px; border-radius: 20px; text-align: center; border: 2px solid #8d6e63; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .avatar { font-size: 4rem; margin-bottom: 10px; }
+        h1 { margin: 5px 0; color: #ffca28; }
+        .edit-link { display: inline-block; margin-top: 10px; color: #d7ccc8; text-decoration: none; font-size: 0.9rem; border-bottom: 1px dashed #d7ccc8; }
+        .logout-link { display: block; margin-top: 20px; color: #ef5350; text-decoration: none; font-weight: bold; font-size: 0.9rem; }
+        .stats-container { display: flex; gap: 15px; justify-content: center; margin-top: 25px; flex-wrap: wrap; }
+        .stat-box { background: rgba(255,255,255,0.1); padding: 15px 25px; border-radius: 15px; min-width: 100px; border: 1px solid rgba(255,255,255,0.05); }
+        .stat-number { font-size: 1.8rem; font-weight: bold; color: #ffca28; display: block; }
+        .stat-label { font-size: 0.9rem; opacity: 0.8; }
+        h3 { border-bottom: 2px solid #8d6e63; padding-bottom: 10px; color: #ffcc80; margin-top: 40px; }
+        .list-item { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; }
+        .item-link { color: #ffca28; text-decoration: none; font-weight: bold; font-size: 0.9rem; }
+        .btn-back { display: inline-block; margin-bottom: 20px; color: #d7ccc8; text-decoration: none; border: 1px solid #8d6e63; padding: 8px 20px; border-radius: 30px; }
+        .profile-icon-container { position: fixed; top: 20px; left: 20px; z-index: 1000; transition: transform 0.8s; }
+        .profile-icon-container img { width: 60px; height: 60px; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.5)); }
+        .profile-icon-container:hover { transform: scale(1.2) rotate(720deg); cursor: pointer; }
+        .barista-badge { background: linear-gradient(45deg, #ffca28, #ff6f00); color: #3e2723; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; display: inline-block; margin-top: 5px; box-shadow: 0 4px 10px rgba(255, 111, 0, 0.3); }
+        .barista-panel { background: rgba(0,0,0,0.2); margin-top: 20px; padding: 20px; border-radius: 15px; text-align: left; }
+    </style>
+</head>
+<body>
+
+    <a href="/profile" class="profile-icon-container" title="Profilime Git">
+        <img th:src="@{/images/bean.png}" alt="Profil">
+    </a>
+
+    <div class="container">
+        <a href="/dashboard" class="btn-back">← Ana Ekrana Dön</a>
+
+        <div class="profile-header">
+            <div class="avatar">
+                <span th:if="${isBarista}">👨‍🍳</span>
+                <span th:unless="${isBarista}">☕️</span>
+            </div>
+            <h1 th:text="${user.username}">Kullanıcı</h1>
+            <div th:if="${isBarista}" class="barista-badge">Onaylı Barista Hesap</div>
+            <p th:text="${user.email}" style="opacity: 0.6; margin: 0;">email</p>
+            <a href="/profile/edit" class="edit-link">✏️ Bilgileri Düzenle / Şifre Değiştir</a>
+            <a href="/logout" class="logout-link">Çıkış Yap</a>
+
+            <div class="stats-container">
+                <div class="stat-box"><span class="stat-number" th:text="${visitCount}">0</span><span class="stat-label">Ziyaret</span></div>
+                <div class="stat-box"><span class="stat-number" th:text="${reviewCount}">0</span><span class="stat-label">Yorum</span></div>
+                <div class="stat-box" th:if="${isBarista}"><span class="stat-number" th:text="${followerCount}">0</span><span class="stat-label">Takipçi</span></div>
+            </div>
+
+            <div th:if="${isBarista}" class="barista-panel">
+                <h3 style="margin-top:0; color:#ffcc80; border-bottom:1px solid #5d4037; padding-bottom:10px;">👨‍🍳 Barista Kariyerim</h3>
+                <p><strong>Deneyim:</strong> <span th:text="${employeeData.experienceYears}">0</span> Yıl</p>
+                <p><strong>Çalıştığım Kafeler:</strong></p>
+                <ul style="padding-left: 20px; margin: 5px 0;">
+                    <li th:each="cafe : ${employeeData.cafes}">
+                        <a th:href="@{/cafe/{id}(id=${cafe.cafeId})}" style="color:#ffca28; text-decoration:none;" th:text="${cafe.name}">Kafe Adı</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div style="margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                <form action="/profile/update" method="post" style="display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <label style="font-weight:bold; color:#ffca28;">Favori İçeceğim:</label>
+                    <input type="text" name="favoriteDrink" th:value="${user.favoriteDrink}" placeholder="Örn: Iced Latte" style="padding: 10px; border-radius: 10px; border: none; width: 200px; font-family: inherit; font-weight:bold; color:#3e2723;">
+                    <button type="submit" style="background: #8d6e63; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold;">Kaydet</button>
+                </form>
+            </div>
+        </div>
+
+        <div th:if="${isBarista}">
+            <h3>👥 Takipçilerim</h3>
+            <div th:if="${#lists.isEmpty(followers)}" style="opacity:0.5;">Henüz takipçin yok.</div>
+            <div th:each="f : ${followers}" class="list-item">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.2rem;">👤</span>
+                    <span th:text="${f.user.username}" style="font-weight: bold;">Kullanıcı Adı</span>
+                </div>
+                
+                <a th:href="@{/user/{username}(username=${f.user.username})}" class="item-link">Profile Git ›</a>
+            </div>
+        </div>
+
+        <h3 style="margin-top:40px;">👀 Takip Ettiklerim</h3>
+        <div th:if="${#lists.isEmpty(following)}" style="opacity:0.5;">Kimseyi takip etmiyorsun.</div>
+        <div th:each="f : ${following}" class="list-item">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 1.2rem;">☕️</span>
+                <span th:if="${f.employee != null}" th:text="${f.employee.name} + ' (Barista)'">Barista</span>
+                <span th:if="${f.followedUser != null}" th:text="${f.followedUser.username}">Kullanıcı</span>
+            </div>
+            
+            <a th:if="${f.employee != null}" th:href="@{/user/{username}(username=${f.employee.username})}" class="item-link">Profile Git ›</a>
+            
+            <a th:if="${f.followedUser != null}" th:href="@{/user/{username}(username=${f.followedUser.username})}" class="item-link">Profile Git ›</a>
+        </div>
+        
+        <h3>❤️ Favori Kafelerim</h3>
+        <div th:if="${#lists.isEmpty(favorites)}" style="opacity:0.5;">Henüz favorin yok.</div>
+        <div th:each="fav : ${favorites}" class="list-item">
+            <span th:text="${fav.cafe.name}">Kafe Adı</span>
+            <a th:href="@{/cafe/{id}(id=${fav.cafe.cafeId})}" class="item-link">Git ›</a>
+        </div>
+
+        <h3>📍 Son Ziyaretlerim</h3>
+        <div th:if="${#lists.isEmpty(visits)}" style="opacity:0.5;">Henüz ziyaret yok.</div>
+        <div th:each="visit : ${visits}" class="list-item">
+            <div>
+                <span th:text="${visit.cafe.name}" style="font-weight:bold;">Kafe</span>
+                <small style="opacity:0.6; margin-left:10px;" th:text="${visit.visitDate}">Tarih</small>
+            </div>
+            <a th:href="@{/cafe/{id}(id=${visit.cafe.cafeId})}" class="item-link">Git ›</a>
+        </div>
+
+        <h3>💭 Son Yorumlarım</h3>
+        <div th:if="${#lists.isEmpty(reviews)}" style="opacity:0.5;">Henüz yorum yok.</div>
+        <div th:each="review : ${reviews}" class="list-item">
+            <div>
+                <span th:text="${review.cafe.name}">Kafe</span>
+                <span style="color:#ffca28; margin-left:5px;" th:text="'★ ' + ${review.ratingOverall}">5.0</span>
+            </div>
+            <a href="/my-reviews" class="item-link">Yönet ›</a>
+        </div>
+
+    </div>
+</body>
+</html>

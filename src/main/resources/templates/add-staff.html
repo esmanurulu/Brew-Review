@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Personel Ekle - Yönetici</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #3e2723; color: #fcf6f0; font-family: 'Poppins', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: #5d4037; padding: 40px; border-radius: 20px; width: 400px; border: 2px solid #8d6e63; }
+        h1 { text-align: center; color: #ffca28; margin-top: 0; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input, select { width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; border: none; box-sizing: border-box; font-family: inherit; }
+        button { width: 100%; padding: 15px; background: #ffca28; color: #3e2723; border: none; border-radius: 10px; margin-top: 20px; font-weight: bold; cursor: pointer; }
+        .btn-back { display: block; text-align: center; margin-top: 15px; color: #d7ccc8; text-decoration: none; }
+        .error-msg { background: #ef5350; color: white; padding: 10px; border-radius: 8px; margin-bottom: 15px; text-align: center; font-size: 0.9rem;}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👨‍🍳 Yeni Personel</h1>
+        
+        <div th:if="${error}" class="error-msg" th:text="${error}"></div>
+
+        <form action="/admin/add-staff" method="post">
+            <label>Ad Soyad</label>
+            <input type="text" name="name" required>
+            
+            <label>Rol</label>
+            <select name="role">
+                <option value="barista">Barista</option>
+                <option value="manager">Müdür</option>
+                <option value="waiter">Garson</option>
+                <option value="chef">Şef</option>
+            </select>
+            
+            <label>Deneyim (Yıl)</label>
+            <input type="number" name="experience" value="0" min="0" required>
+
+            <button type="submit">Ekibe Ekle</button>
+        </form>
+        <a href="/admin/dashboard" class="btn-back">İptal</a>
+    </div>
+</body>
+</html>

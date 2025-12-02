@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Ziyaret Geçmişim - Brew&Review</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #3e2723; color: #fcf6f0; font-family: 'Poppins', sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        
+        h1 { text-align: center; color: #ffca28; margin-bottom: 30px; }
+        
+        .visit-card {
+            background: rgba(255,255,255,0.1); 
+            padding: 20px; 
+            border-radius: 15px; 
+            margin-bottom: 15px;
+            border-left: 5px solid #8d6e63;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.3s;
+        }
+        .visit-card:hover { background: rgba(255,255,255,0.15); transform: translateX(5px); }
+        
+        .cafe-name { font-size: 1.2rem; font-weight: bold; color: #ffca28; }
+        .date-time { font-size: 0.9rem; opacity: 0.8; }
+        .btn-view { text-decoration: none; background: #8d6e63; padding: 8px 15px; border-radius: 20px; color: white; font-size: 0.8rem; }
+
+        .empty-state { text-align: center; opacity: 0.6; margin-top: 50px; font-size: 1.2rem; }
+        .btn-back { display: inline-block; margin-bottom: 20px; color: #fcf6f0; text-decoration: none; opacity: 0.8; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="/dashboard" class="btn-back">← Ana Ekrana Dön</a>
+
+    <h1>📍 Ziyaret Geçmişim</h1>
+
+    <div th:if="${#lists.isEmpty(visits)}" class="empty-state">
+        <p>Henüz hiçbir yerde check-in yapmadın.</p>
+        <p>Hadi bir kahve içmeye çıkalım! ☕️</p>
+        <br>
+        <a href="/cafes" style="color: #ffca28;">Kafeleri Keşfet</a>
+    </div>
+
+    <div th:each="visit : ${visits}">
+        <div class="visit-card">
+            <div>
+                <div class="cafe-name" th:text="${visit.cafe.name}">Kafe Adı</div>
+                <div class="date-time">
+                    📅 <span th:text="${visit.visitDate}">2023-11-01</span> 
+                    ⏰ <span th:text="${visit.visitTime}">14:30</span>
+                </div>
+                <div style="font-style: italic; font-size: 0.9rem; margin-top: 5px;" th:text="${visit.visitNote}">Not</div>
+            </div>
+            
+            <a th:href="@{/cafe/{id}(id=${visit.cafe.cafeId})}" class="btn-view">Kafeye Git ›</a>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

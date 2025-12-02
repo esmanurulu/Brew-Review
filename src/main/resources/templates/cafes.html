@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kafeler - Brew&Review</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #3e2723; color: #fcf6f0; font-family: 'Poppins', sans-serif; padding: 0; margin: 0; overflow-x: hidden; }
+        .main-container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; padding-bottom: 100px; }
+        .profile-icon-container { position: fixed; top: 20px; left: 20px; z-index: 1000; transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .profile-icon-container img { width: 60px; height: 60px; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.5)); }
+        .profile-icon-container:hover { transform: scale(1.2) rotate(720deg); cursor: pointer; }
+        .header-area { text-align: center; margin-bottom: 40px; }
+        .header-area h1 { font-size: 3rem; color: #ffca28; margin: 15px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .btn-nav { background: rgba(255, 255, 255, 0.1); color: #d7ccc8; padding: 8px 20px; border-radius: 30px; text-decoration: none; font-size: 0.9rem; border: 1px solid #8d6e63; transition: 0.3s; display: inline-block; }
+        .btn-nav:hover { background: #ffca28; color: #3e2723; border-color: #ffca28; }
+        
+        /* FİLTRE VE SIRALAMA ALANI */
+        .controls-wrapper {
+            background: rgba(255,255,255,0.05); padding: 20px; border-radius: 20px; border: 1px solid #5d4037;
+            margin-bottom: 40px; display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; align-items: center;
+        }
+        .search-group { display: flex; gap: 10px; }
+        input { padding: 10px; border-radius: 8px; border: none; width: 200px; font-family: inherit; }
+        button { padding: 10px 20px; border-radius: 8px; border: none; background: #d7ccc8; color: #3e2723; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #ffca28; }
+        .sort-links a { color: #d7ccc8; text-decoration: none; margin: 0 10px; font-size: 0.9rem; }
+        .sort-links a:hover { color: #ffca28; text-decoration: underline; }
+
+        .cafe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 40px; row-gap: 50px; }
+        .cafe-card { background: #5d4037; border: 2px solid #8d6e63; border-radius: 25px; padding: 30px; transition: transform 0.3s, box-shadow 0.3s; display: flex; flex-direction: column; justify-content: space-between; min-height: 350px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .cafe-card:hover { transform: translateY(-10px); background: #6d4c41; box-shadow: 0 20px 40px rgba(0,0,0,0.4); border-color: #ffca28; }
+        .cafe-card h2 { margin-top: 0; color: #fff; font-size: 1.5rem; }
+        .rating { color: #ffca28; font-weight: bold; font-size: 1.2rem; margin: 15px 0; display: flex; align-items: center; gap: 8px; }
+        .badge { background: #8d6e63; padding: 8px 15px; border-radius: 20px; font-size: 0.85rem; display: inline-block; margin-top: 5px; color: #efebe9; }
+        .address { font-size: 0.95rem; opacity: 0.7; margin-top: 15px; line-height: 1.5; color: #d7ccc8; }
+        .btn-detail { width: 100%; padding: 15px; background: #ffca28; color: #3e2723; border: none; border-radius: 15px; font-weight: bold; cursor: pointer; margin-top: 25px; transition: 0.3s; font-size: 1.1rem; }
+        .btn-detail:hover { background: #ffb300; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+
+    <a href="/profile" class="profile-icon-container" title="Profilime Git">
+        <img th:src="@{/images/bean.png}" alt="Profil">
+    </a>
+
+    <div class="main-container">
+
+        <div class="header-area">
+            <a href="/dashboard" class="btn-nav">← Ana Ekrana Dön</a>
+            <h1>Kafeleri Keşfet ☕️</h1>
+        </div>
+
+        <div class="controls-wrapper">
+            <form action="/cafes" method="get" class="search-group">
+                <input type="text" name="city" list="citySuggestions" placeholder="Şehir Ara (örn: Istanbul)">
+                <datalist id="citySuggestions">
+                    <option th:each="city : ${cityList}" th:value="${city}"></option>
+                </datalist>
+                <button type="submit">📍</button>
+            </form>
+
+            <form action="/cafes" method="get" class="search-group">
+                <input type="text" name="name" placeholder="Kafe Adı Ara...">
+                <button type="submit">🔍</button>
+            </form>
+
+            <form action="/cafes" method="get" style="margin:0;">
+                <input type="hidden" name="dessert" value="true">
+                <button type="submit">🍰 Tatlısı Olanlar</button>
+            </form>
+
+            <div class="sort-links">
+                <span>Sırala:</span>
+                <a href="/cafes?sort=az">A-Z</a> |
+                <a href="/cafes?sort=rating">Puan (En Yüksek)</a> |
+                <a href="/cafes">Varsayılan</a>
+            </div>
+        </div>
+
+        <div class="cafe-grid">
+            <div class="cafe-card" th:each="cafe : ${cafes}">
+                <div>
+                    <h2 th:text="${cafe.name}">Kafe Adı</h2>
+                    <div style="display: flex; align-items: center; gap: 5px; color: #d7ccc8;">
+                        <span>📍</span> <span th:text="${cafe.city}">Şehir</span>
+                    </div>
+                    
+                    <div class="rating">
+                        <span th:if="${cafe.totalRating != null}" style="display: flex; align-items: center; gap: 5px;">
+                            <img th:src="@{/images/bean.png}" width="24" style="filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.5));"> 
+                            <span th:text="${cafe.totalRating}">4.5</span> / 5.0
+                        </span>
+                        <span th:if="${cafe.totalRating == null}" style="color: #a1887f; font-size: 0.9rem; font-style: italic;">
+                            🆕 Henüz Puanlanmadı
+                        </span>
+                    </div>
+
+                    <span th:if="${cafe.hasDessert}" class="badge">🍰 Tatlı Mevcut</span>
+                    <p class="address" th:text="${cafe.address}">Adres</p>
+                </div>
+                <a th:href="@{/cafe/{id}(id=${cafe.cafeId})}" style="text-decoration: none;">
+                    <button class="btn-detail">İncele</button>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

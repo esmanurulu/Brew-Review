@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Profili Düzenle - Brew&Review</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #3e2723; color: #fcf6f0; font-family: 'Poppins', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: #5d4037; padding: 40px; border-radius: 20px; width: 400px; border: 2px solid #8d6e63; }
+        h1 { text-align: center; color: #ffca28; margin-top: 0; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input { width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; border: none; box-sizing: border-box; font-family: inherit; }
+        
+        .section-divider { margin: 25px 0; border-top: 1px dashed #a1887f; position: relative; }
+        .section-divider span { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #5d4037; padding: 0 10px; color: #a1887f; font-size: 0.8rem; }
+
+        button { width: 100%; padding: 12px; background: #ffca28; color: #3e2723; border: none; border-radius: 10px; margin-top: 20px; font-weight: bold; cursor: pointer; transition:0.3s;}
+        button:hover { background: #ffb300; transform:translateY(-2px); }
+        
+        .btn-back { display: block; text-align: center; margin-top: 15px; color: #d7ccc8; text-decoration: none; }
+        .msg-error { color: #ef5350; font-size: 0.9rem; margin-bottom: 10px; text-align: center; }
+        .msg-success { color: #66bb6a; font-size: 0.9rem; margin-bottom: 10px; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>⚙️ Ayarlar</h1>
+
+        <div th:if="${error}" class="msg-error" th:text="${error}"></div>
+        <div th:if="${success}" class="msg-success" th:text="${success}"></div>
+
+        <form action="/profile/edit" method="post">
+            <label>Kullanıcı Adı (Değiştirilemez)</label>
+            <input type="text" th:value="${user.username}" disabled style="background: rgba(0,0,0,0.2); color: #aaa;">
+
+            <label>E-Posta Adresi</label>
+            <input type="email" name="email" th:value="${user.email}" required>
+
+            <div class="section-divider"><span>Şifre Değiştir (İsteğe Bağlı)</span></div>
+
+            <label>Yeni Şifre</label>
+            <input type="password" name="newPassword" placeholder="Değiştirmek istemiyorsan boş bırak">
+            
+            <label>Mevcut Şifre (Kaydetmek için Gerekli)</label>
+            <input type="password" name="currentPassword" placeholder="Güvenlik için şifreni gir" required style="border: 2px solid #ffca28;">
+
+            <button type="submit">Güncelle</button>
+        </form>
+
+        <a href="/profile" class="btn-back">Vazgeç</a>
+    </div>
+
+</body>
+</html>

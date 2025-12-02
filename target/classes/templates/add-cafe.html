@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Yeni Kafe Ekle - Brew&Review</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #3e2723; color: #fcf6f0; font-family: 'Poppins', sans-serif;
+            display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;
+        }
+        .container {
+            background: #5d4037; padding: 40px; border-radius: 20px; width: 100%; max-width: 500px;
+            border: 2px solid #8d6e63; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 { text-align: center; color: #ffca28; margin-top: 0; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input[type="text"] { 
+            width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; border: none; 
+            box-sizing: border-box; font-family: inherit;
+        }
+        
+        /* Telefon Input Grubu */
+        .phone-group { display: flex; align-items: center; margin-top: 5px; }
+        .prefix { background: #8d6e63; color: white; padding: 10px; border-radius: 8px 0 0 8px; font-weight: bold; }
+        .phone-input { border-radius: 0 8px 8px 0 !important; flex: 1; }
+
+        .checkbox-group { display: flex; align-items: center; margin-top: 20px; gap: 10px; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 10px; }
+        input[type="checkbox"] { transform: scale(1.5); cursor: pointer; }
+
+        button {
+            width: 100%; padding: 15px; background: #ffca28; color: #3e2723; 
+            border: none; border-radius: 10px; margin-top: 30px; 
+            font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: 0.3s;
+        }
+        button:hover { background: #ffb300; transform: translateY(-2px); }
+        .btn-back { display: block; text-align: center; margin-top: 15px; color: #d7ccc8; text-decoration: none; }
+        .error-msg { color: #ffcdd2; background: rgba(211, 47, 47, 0.2); padding: 10px; border-radius: 5px; margin-bottom: 15px; border: 1px solid #ef5350; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>➕ Yeni Kafe Ekle</h1>
+        <div th:if="${error}" class="error-msg" th:text="${error}"></div>
+
+        <form action="/admin/add-cafe" method="post">
+            <label>Kafe Adı</label>
+            <input type="text" name="name" placeholder="Örn: Velvet Coffee" required>
+
+            <label>Şehir</label>
+            <input type="text" name="city" placeholder="Örn: İstanbul" required>
+
+            <label>Adres</label>
+            <input type="text" name="address" placeholder="Mahalle, Cadde, No..." required>
+
+            <label>Telefon Numarası</label>
+            <div class="phone-group">
+                <div class="prefix">+90</div>
+                <input type="text" name="phoneNumberRaw" class="phone-input" placeholder="5XX 123 45 67" maxlength="10" pattern="\d{10}" title="Lütfen başında 0 olmadan 10 haneli numara giriniz" required>
+            </div>
+
+            <label>Çalışma Saatleri</label>
+            <input type="text" name="openingHours" placeholder="08:00-22:00" pattern="\d{2}:\d{2}-\d{2}:\d{2}" title="Lütfen SS:DD-SS:DD formatında girin" required>
+
+            <label>İşyeri Ruhsat No (Benzersiz)</label>
+            <input type="text" name="licenseNumber" placeholder="Örn: 34001-ABC" required>
+
+            <div class="checkbox-group">
+                <input type="checkbox" name="hasDessert" id="dessert">
+                <label for="dessert" style="margin:0; cursor:pointer;">🍰 Bu kafede tatlı satılıyor mu?</label>
+            </div>
+
+            <button type="submit">Kafeyi Kaydet 💾</button>
+        </form>
+        <a href="/admin/dashboard" class="btn-back">Panele Dön</a>
+    </div>
+</body>
+</html>

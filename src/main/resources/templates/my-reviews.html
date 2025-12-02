@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Yorumlarım - Brew&Review</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #3e2723; color: #fcf6f0; font-family: 'Poppins', sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; padding-bottom: 100px; }
+        
+        h1 { text-align: center; color: #ffca28; margin-bottom: 30px; }
+
+        .review-card {
+            background: rgba(255,255,255,0.1); padding: 25px; border-radius: 15px; margin-bottom: 20px;
+            border: 1px solid #8d6e63; position: relative;
+        }
+        
+        .cafe-name { font-size: 1.4rem; font-weight: bold; color: #ffca28; display: block; margin-bottom: 5px; text-decoration: none;}
+        .cafe-name:hover { text-decoration: underline; }
+        
+        .rating { font-weight: bold; color: #ffca28; font-size: 1.1rem;}
+        .date { font-size: 0.85rem; opacity: 0.6; display: block; margin-top: 15px; }
+        
+        /* Silme Butonu */
+        .btn-delete {
+            position: absolute; top: 20px; right: 20px;
+            background: #d32f2f; color: white; border: none;
+            padding: 8px 20px; border-radius: 20px; cursor: pointer;
+            font-weight: bold; transition: 0.3s; font-family: inherit;
+        }
+        .btn-delete:hover { background: #b71c1c; transform: scale(1.05); }
+
+        .btn-back { 
+            display: inline-block; margin-bottom: 20px; 
+            color: #d7ccc8; text-decoration: none; 
+            border: 1px solid #8d6e63; padding: 8px 20px; border-radius: 30px; transition: 0.3s;
+        }
+        .btn-back:hover { background: #ffca28; color: #3e2723; border-color: #ffca28; }
+
+        .empty-state { text-align: center; opacity: 0.7; margin-top: 80px; font-size: 1.3rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="/dashboard" class="btn-back">← Ana Ekrana Dön</a>
+
+    <h1>💭 Yorumlarım</h1>
+
+    <div th:if="${#lists.isEmpty(reviews)}" class="empty-state">
+        <p>Henüz hiç yorum yapmadın.</p>
+        <p>Biraz kahve içip fikirlerini paylaşmaya ne dersin? ☕️</p>
+        <br>
+        <a href="/cafes" style="color: #ffca28; font-weight: bold;">Kafeleri İncele</a>
+    </div>
+
+    <div th:each="review : ${reviews}">
+        <div class="review-card">
+            <a th:href="@{/cafe/{id}(id=${review.cafe.cafeId})}" class="cafe-name" th:text="${review.cafe.name}">Kafe Adı</a>
+            
+            <div>
+                <span class="rating" th:text="'★ ' + ${review.ratingOverall}">5.0</span>
+                
+                <span th:if="${not #lists.isEmpty(review.consumedItems)}" style="font-size: 0.9rem; color: #d7ccc8; margin-left: 10px;">
+                    | Denedim: <span th:each="item : ${review.consumedItems}" th:text="${item.name} + ' '"></span>
+                </span>
+            </div>
+
+            <p th:text="${review.comment}" style="margin-top: 15px; line-height: 1.6; font-size: 1rem;">Yorum...</p>
+            <span class="date" th:text="${#dates.format(review.reviewDate, 'dd MMMM yyyy HH:mm')}">Tarih</span>
+
+            <form th:action="@{/review/delete/{id}(id=${review.reviewId})}" method="post" onsubmit="return confirm('Bu yorumu silmek istediğine emin misin?');">
+                <button type="submit" class="btn-delete">🗑 Sil</button>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

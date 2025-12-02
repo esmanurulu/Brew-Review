@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Yönetici Paneli - Brew&Review</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #2c241b; color: #fcf6f0; font-family: 'Poppins', sans-serif; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        
+        /* Üst Bilgi Kartı */
+        .admin-header {
+            background: #3e2723; padding: 30px; border-radius: 20px; 
+            border: 2px solid #a1887f; display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .shop-info h1 { margin: 0; color: #ffca28; }
+        .shop-info p { margin: 5px 0; opacity: 0.8; }
+        
+        /* ÇIKIŞ BUTONU STİLİ */
+        .btn-logout { 
+            background: transparent; 
+            border: 2px solid #ef5350; 
+            color: #ef5350; 
+            padding: 10px 25px; 
+            border-radius: 30px; 
+            text-decoration: none; 
+            font-weight: bold;
+            transition: 0.3s; 
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-logout:hover { 
+            background: #ef5350; 
+            color: white; 
+            transform: translateY(-2px);
+        }
+
+        /* Grid Menü */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        
+        .dash-card {
+            background: rgba(255,255,255,0.05); padding: 25px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1);
+        }
+        .dash-card h3 { color: #ffca28; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-top: 0; }
+        
+        /* Listeler */
+        .list-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .list-item:last-child { border-bottom: none; }
+        
+        .btn-action { background: #a1887f; color: white; padding: 5px 10px; border-radius: 5px; text-decoration: none; font-size: 0.8rem; }
+        
+        .alert-box { background: #ffb74d; color: #3e2723; padding: 15px; border-radius: 10px; margin-bottom: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div th:if="${cafe == null}" class="alert-box">
+        ⚠️ Henüz bir kafeniz yok! Lütfen aşağıdan kafe ekleyin.
+        <a href="/admin/add-cafe" style="display:block; margin-top:10px; background:#3e2723; color:white; padding:10px; text-align:center; text-decoration:none; border-radius:5px;">➕ Yeni Kafe Oluştur</a>
+        <div style="text-align: right; margin-top: 10px;">
+            <a href="/logout" style="color: #3e2723; text-decoration: underline;">Çıkış Yap</a>
+        </div>
+    </div>
+
+    <div th:if="${cafe != null}">
+        <div class="admin-header">
+            <div class="shop-info">
+                <h1 th:text="${cafe.name}">Kafe Adı</h1>
+                <p>📍 <span th:text="${cafe.city}">Şehir</span> | Puan: <span th:text="${cafe.totalRating}">0.0</span></p>
+                
+                <a href="/admin/edit-cafe" style="color: #ffca28; text-decoration: none; font-size: 0.9rem; border: 1px solid #ffca28; padding: 5px 15px; border-radius: 15px; margin-top: 10px; display: inline-block; transition:0.3s;">
+                    ✏️ Bilgileri Düzenle (Saat/Tel)
+                </a>
+            </div>
+
+            <a href="/logout" class="btn-logout">🚪 Çıkış Yap</a>
+        </div>
+
+        <div class="dashboard-grid">
+            
+            <div class="dash-card">
+                <h3>📊 Özet</h3>
+                <p>Toplam Yorum: <strong th:text="${cafe.reviewCount}">0</strong></p>
+                <p>Çalışan Sayısı: <strong th:text="${#lists.size(cafe.employees)}">0</strong></p>
+                <p>Menü Öğesi: <strong th:text="${#lists.size(cafe.menuItems)}">0</strong></p>
+                <a th:href="@{/cafe/{id}(id=${cafe.cafeId})}" target="_blank" class="btn-action">Müşteri Gözüyle Gör ›</a>
+            </div>
+
+            <div class="dash-card">
+                <h3>📜 Menü Yönetimi</h3>
+                
+                <div th:if="${#lists.isEmpty(cafe.menuItems)}" style="opacity:0.6;">Menü boş.</div>
+
+                <div th:each="item : ${cafe.menuItems}" class="list-item">
+                    <div>
+                        <span th:text="${item.name}" style="font-weight:bold;">Kahve</span>
+                        <span th:text="${item.price} + '₺'" style="color:#ffca28; margin-left:5px;">00₺</span>
+                    </div>
+                    
+                    <form action="/admin/delete-menu" method="post" onsubmit="return confirm('Bu ürünü menüden silmek istediğine emin misin?');">
+                        <input type="hidden" name="menuId" th:value="${item.menuId}">
+                        <button type="submit" style="background:transparent; border:none; cursor:pointer; color:#ef5350; font-size:1.1rem;">🗑</button>
+                    </form>
+                </div>
+                
+                <br>
+                <a href="/admin/add-menu" class="btn-action" style="background:#ffca28; color:#3e2723;">+ Ürün Ekle</a>
+            </div>
+
+            <div class="dash-card">
+                <h3>👨‍🍳 Ekibim</h3>
+                
+                <div th:if="${#lists.isEmpty(cafe.employees)}" style="opacity:0.6;">Çalışan yok.</div>
+
+                <div th:each="emp : ${cafe.employees}" class="list-item">
+                    <div>
+                        <span th:text="${emp.name}">İsim</span>
+                        <small style="opacity:0.6; margin-left:5px;" th:text="'(' + ${emp.role} + ')'">Rol</small>
+                    </div>
+                    
+                    <form action="/admin/delete-staff" method="post" onsubmit="return confirm('Bu çalışanı listeden çıkarmak istediğine emin misin?');">
+                        <input type="hidden" name="staffId" th:value="${emp.employeeId}">
+                        <button type="submit" style="background:transparent; border:none; cursor:pointer; color:#ef5350; font-size:1.1rem;">🗑</button>
+                    </form>
+                </div>
+                
+                <br>
+                <a href="/admin/add-staff" class="btn-action" style="background:#ffca28; color:#3e2723;">+ Çalışan Ekle</a>
+            </div>
+
+             <div class="dash-card" style="background: rgba(255, 202, 40, 0.1); border-color: #ffca28;">
+                <h3 style="color: #ffca28;">🔥 Popüler Lezzetler</h3>
+                
+                <div th:if="${#lists.isEmpty(popularItems)}" style="opacity:0.7; font-size:0.9rem;">Henüz yeterli veri yok.</div>
+
+                <ul th:if="${not #lists.isEmpty(popularItems)}" style="padding-left: 20px; margin: 5px 0;">
+                    <li th:each="item : ${popularItems}" th:text="${item}" style="margin-bottom: 5px; font-weight: bold;">Kahve (5)</li>
+                </ul>
+                <small style="opacity: 0.6;">(En çok yorumlananlar)</small>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

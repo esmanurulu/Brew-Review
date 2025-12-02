@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kayıt Ol - Brew&Review</title>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #3e2723; color: #3e2723; font-family: 'Poppins', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: rgba(255, 255, 255, 0.95); padding: 40px; border-radius: 20px; width: 350px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3); border: 3px dashed #3e2723; }
+        h1 { font-family: 'Patrick Hand', cursive; font-size: 2.5rem; margin-bottom: 20px; }
+        .input-group { text-align: left; margin-bottom: 15px; }
+        .input-group label { font-weight: bold; display: block; margin-bottom: 5px; }
+        .input-group input { width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #ccc; box-sizing: border-box; font-family: inherit; }
+        
+        /* Barista Checkbox */
+        .checkbox-group { display: flex; align-items: center; background: #efebe9; padding: 10px; border-radius: 8px; margin-bottom: 15px; }
+        .checkbox-group input { width: auto; transform: scale(1.3); margin-right: 10px; }
+        
+        button { width: 100%; padding: 12px; background: #3e2723; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 1.1rem; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #5d4037; transform: translateY(-2px); }
+        .error-msg { color: red; font-size: 0.9rem; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>Aramıza Katıl ☕️</h1>
+        <div th:if="${error}" class="error-msg" th:text="${error}"></div>
+
+        <form action="/register" method="post">
+            <div class="input-group">
+                <label>Kullanıcı Adı</label>
+                <input type="text" name="username" required>
+            </div>
+            <div class="input-group">
+                <label>E-Posta</label>
+                <input type="email" name="email" required>
+            </div>
+            <div class="input-group">
+                <label>Şifre</label>
+                <input type="password" name="password" required>
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" name="isBarista" id="baristaCheck">
+                <label for="baristaCheck" style="margin:0; cursor:pointer;">Mesleğiniz Barista mı? 👨‍🍳</label>
+            </div>
+
+            <button type="submit">Kayıt Ol</button>
+        </form>
+        
+        <div style="margin-top: 15px; font-size: 0.9rem;">
+            <p>Zaten hesabın var mı? <a href="/" style="color: #3e2723; font-weight: bold;">Giriş Yap</a></p>
+        </div>
+    </div>
+
+</body>
+</html>

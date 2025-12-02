@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brew&Review - Giriş</title>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+
+    <div id="intro-container">
+        <div class="animation-center">
+            <div class="coffee-stream"></div>
+            <div class="sketch-cup-container">
+                <div class="steam-wrapper">
+                    <div class="steam s1"></div>
+                    <div class="steam s2"></div>
+                    <div class="steam s3"></div>
+                </div>
+                <div class="splashes">
+                    <div class="splash sp1"></div>
+                    <div class="splash sp2"></div>
+                    <div class="splash sp3"></div>
+                    <div class="splash sp4"></div>
+                    <div class="splash sp5"></div>
+                </div>
+                <div class="camera-blob"></div>
+                <div class="sketch-cup"><div class="cup-fill"></div></div>
+                <div class="sketch-handle"></div>
+                <div class="sketch-plate"></div>
+                <div class="intro-brand-text">Brew&Review</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="login-container">
+        <div class="login-card">
+            <h1 class="login-brand">Brew&Review</h1>
+            <div class="header">
+                <h2>Giriş Yap</h2>
+                <p>Kahve tutkunlarının buluşma noktası.</p>
+            </div>
+            
+            <form id="loginForm">
+                <div class="input-group">
+                    <label>Kullanıcı Adı</label>
+                    <input type="text" name="username" required>
+                </div>
+                <div class="input-group">
+                    <label>Şifre</label>
+                    <input type="password" name="password" required>
+                </div>
+                
+                <div style="text-align: left; margin: 15px 0; font-size: 0.9rem; display: flex; align-items: center;">
+                    <input type="checkbox" name="isAdmin" id="isAdmin" style="width: auto; transform: scale(1.3); margin-right: 8px;">
+                    <label for="isAdmin" style="margin:0; cursor:pointer; color: var(--coffee-dark);">Ben Kafe Yöneticisiyim 👔</label>
+                </div>
+
+                <button type="submit">Giriş Yap</button>
+            </form>
+            
+            <div style="margin-top: 15px; font-size: 0.9rem;">
+                <p>Hesabın yok mu? <a href="/register" style="color: var(--coffee-dark); font-weight: bold;">Kayıt Ol</a></p>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid rgba(62, 39, 35, 0.2); margin: 20px 0;">
+
+            <div style="font-size: 0.9rem; background: rgba(62, 39, 35, 0.1); padding: 10px; border-radius: 8px;">
+                <a href="/manager/register" style="color: #3e2723; text-decoration: none; font-weight: 500;">
+                    Yeni işletme misiniz? <br> <strong>İşletme Hesabı Oluşturun ›</strong>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/script.js}"></script>
+</body>
+</html>
