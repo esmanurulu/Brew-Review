@@ -89,10 +89,12 @@ Tarayıcıdan açabilirsiniz:
 ```bash
 👉 http://localhost:8080
 ```
- <img src="src/main/resources/static/images/bean.png" alt="Brew&Review Logo" width="100" height="100" />
 <div align="center">
 
-Developed with ❤️ by
-Esmanur Ulu & Zeynep Yetkin
+  <img src="src/main/resources/static/images/bean.png" alt="bean" width="40" height="40" style="vertical-align: middle;"/>
+
+  <strong style="margin: 0 10px;">Developed with ❤️ by Esmanur Ulu & Zeynep Yetkin</strong>
+
+  <img src="src/main/resources/static/images/bean.png" alt="bean" width="40" height="40" style="vertical-align: middle;"/>
 
 </div>
