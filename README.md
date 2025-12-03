@@ -1,6 +1,6 @@
 <div align="center">
 
-  <img src="src/main/resources/static/images/logo.png" alt="Brew&Review Logo" width="120" height="120" />
+  <img src="src/main/resources/static/images/logo.png" alt="Brew&Review Logo" width="160" height="160" />
   
   <h1>☕️ Brew&Review</h1>
   
@@ -64,33 +64,29 @@ Proje, **veri bütünlüğü**, **performans optimizasyonu** ve **gerçek zamanl
 
 ---
 
-## 🚀 Kurulum ve Çalıştırma
-
-### 1. Projeyi Klonlayın
-
-```bash
+🚀 Kurulum ve Çalıştırma
+1. Projeyi Klonlayın
 git clone https://github.com/esmanurulu/BrewAndReview.git
 cd BrewAndReview
-2. Veritabanı Ayarlarını Yapın
-src/main/resources/application.properties dosyasını açın:
 
-properties
-Kodu kopyala
+2. Veritabanı Ayarları
+
+src/main/resources/application.properties dosyasını açın ve şifreyi ekleyin:
+
 spring.datasource.url=jdbc:mysql://brewandreview-uluesma8-d25c.b.aivencloud.com:22065/defaultdb?ssl-mode=REQUIRED
 spring.datasource.username=avnadmin
 spring.datasource.password=BURAYA_AIVEN_SIFRESINI_YAZIN
-3. Uygulamayı Başlatın
-bash
-Kodu kopyala
-./mvnw spring-boot:run
-Uygulama açıldığında tarayıcınızdan:
 
+3. Uygulamayı Başlatma
+./mvnw spring-boot:run
+
+
+Tarayıcıdan açabilirsiniz:
 👉 http://localhost:8080
 
-adresine giderek kullanmaya başlayabilirsiniz.
-
 <div align="center">
-💛 Developed with care by
+
+Developed with ❤️ by
 Esmanur Ulu & Zeynep Yetkin
 
-</div> ```
+</div>
